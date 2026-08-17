@@ -85,5 +85,78 @@ Nền tảng **CAB System** được phát triển nhằm chuyển đổi toàn 
 | **Nhân viên vận hành** | Nhóm quản trị hệ thống hàng ngày, thực hiện tạo tài khoản cho tài xế, kiểm tra trạng thái hoạt động, hỗ trợ xử lý sự cố/chuyến lỗi và tra cứu thông tin giao dịch. |
 | **Chuyên viên phân tích nghiệp vụ** | Người đóng vai trò cầu nối, chịu trách nhiệm làm rõ các yêu cầu chưa chốt (cách tính cước, tiêu chí phân công, chính sách hủy chuyến...) với các bên liên quan và xác định phạm vi, quy trình nghiệp vụ cho đội ngũ phát triển. |
 | **Đội ngũ phát triển** | Nhóm kỹ thuật chịu trách nhiệm thiết kế kiến trúc linh hoạt, xây dựng và triển khai sản phẩm CAB System theo đúng các yêu cầu nghiệp vụ và kỹ thuật. |
+
+
 | **Nhà cung cấp thanh toán bên ngoài** | Đối tác bên thứ ba chịu trách nhiệm tiếp nhận và xử lý bảo mật các giao dịch thanh toán điện tử cho khách hàng. |
 | **Nhà cung cấp dịch vụ thông báo** | Đối tác bên thứ ba hỗ trợ chuyển tải thông báo (SMS, Push Notification...) đến khách hàng và tài xế qua các kênh hạ tầng. |
+
+## 4. Ma Trận Stakeholder Metrix 
+
+---
+config:
+  layout: elk
+---
+graph TD
+    subgraph Stakeholders["Stakeholders"]
+        Customer["Khách hàng<br/>(Customer)"]
+        Driver["Tài xế<br/>(Driver)"]
+        Operator["Nhân viên vận hành<br/>(Operator)"]
+        Management["Ban lãnh đạo<br/>(Management)"]
+        PaymentProvider["Nhà cung cấp thanh toán<br/>(Payment Provider)"]
+        NotificationProvider["Nhà cung cấp thông báo<br/>(Notification Provider)"]
+    end
+
+    subgraph CABSystem["CAB System"]
+        RideRequest["Yêu cầu đặt xe<br/>(Ride Request)"]
+        DriverMatching["Tìm và phân công tài xế<br/>(Driver Matching)"]
+        RideTracking["Theo dõi chuyến đi<br/>(Ride Tracking)"]
+        FareCalculation["Tính cước<br/>(Fare Calculation)"]
+        Payment["Thanh toán<br/>(Payment)"]
+        Notification["Thông báo<br/>(Notification)"]
+        Rating["Đánh giá<br/>(Rating)"]
+        AdminManagement["Quản trị<br/>(Admin Management)"]
+    end
+
+    Customer -->|Tạo yêu cầu| RideRequest
+    Customer -->|Theo dõi| RideTracking
+    Customer -->|Thanh toán| Payment
+    Customer -->|Nhận thông báo| Notification
+    Customer -->|Đánh giá| Rating
+
+    Driver -->|Nhận chuyến| DriverMatching
+    Driver -->|Cập nhật trạng thái| RideTracking
+    Driver -->|Nhận thông báo| Notification
+
+    Operator -->|Quản lý| AdminManagement
+    Operator -->|Quản lý tài xế| Driver
+    Operator -->|Quản lý khách hàng| Customer
+
+    Management -->|Giám sát báo cáo| AdminManagement
+    Management -->|Đặt chính sách| RideRequest
+    Management -->|Đặt chính sách| FareCalculation
+
+    RideRequest -->|Kích hoạt| DriverMatching
+    DriverMatching -->|Cập nhật| RideTracking
+    RideTracking -->|Hoàn thành| FareCalculation
+    FareCalculation -->|Thực hiện| Payment
+    Payment -->|Kết quả| Notification
+    RideTracking -->|Gửi cập nhật| Notification
+    RideRequest -->|Gửi xác nhận| Notification
+
+    Payment -->|Tích hợp| PaymentProvider
+    Notification -->|Tích hợp| NotificationProvider
+
+    style Customer fill:#eef2ff,stroke:#818cf8,stroke-width:2px
+    style Driver fill:#f0fdfa,stroke:#2dd4bf,stroke-width:2px
+    style Operator fill:#f5f3ff,stroke:#a78bfa,stroke-width:2px
+    style Management fill:#fff7ed,stroke:#fb923c,stroke-width:2px
+    style PaymentProvider fill:#fdf4ff,stroke:#e879f9,stroke-width:2px
+    style NotificationProvider fill:#ecfeff,stroke:#22d3ee,stroke-width:2px
+    style RideRequest fill:#f0fdf4,stroke:#4ade80,stroke-width:2px
+    style DriverMatching fill:#f0fdf4,stroke:#4ade80,stroke-width:2px
+    style RideTracking fill:#f0fdf4,stroke:#4ade80,stroke-width:2px
+    style FareCalculation fill:#fefce8,stroke:#facc15,stroke-width:2px
+    style Payment fill:#fef2f2,stroke:#f87171,stroke-width:2px
+    style Notification fill:#f0f9ff,stroke:#38bdf8,stroke-width:2px
+    style Rating fill:#f7fee7,stroke:#a3e635,stroke-width:2px
+    style AdminManagement fill:#fff1f2,stroke:#fb7185,stroke-width:2px
