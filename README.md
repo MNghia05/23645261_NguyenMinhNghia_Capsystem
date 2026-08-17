@@ -174,20 +174,23 @@ graph LR
 ### 5.2. Lộ Trình Triển Khai Chi Tiết Trong 7 Tuần (7-Week Roadmap)
 
 ```mermaid
-timeline
+gantt
     title Lộ trình triển khai CAB System (7 Tuần)
-    section Tuần 1 : Phân tích & Kiến trúc
-        Yêu cầu & DB Design : Chốt quy tắc nghiệp vụ, thiết kế CSDL, Setup môi trường dev.
-    section Tuần 2 : Xác thực & Quản lý User
-        Auth & User Service : Đăng ký/Đăng nhập (OTP), quản lý Hồ sơ Khách hàng & Tài xế.
-    section Tuần 3 : Luồng Đặt xe & Ghép chuyến
-        Booking Core : Đặt xe, Thuật toán tìm tài xế gần nhất, Nhận/Từ chối chuyến.
-    section Tuần 4 : Định vị & Tính cước
-        GPS & Fare Engine : Theo dõi vị trí thời gian thực (Websocket), Tính cước tự động.
-    section Tuần 5 : Thanh toán & Thông báo
-        Integration : Tích hợp Cổng thanh toán (VNPay/Momo) & Firebase Notification.
-    section Tuần 6 : Admin Dashboard & Testing
-        Operations & QA : Hoàn thiện Web Admin Vận hành, Kiểm thử tích hợp (E2E Testing).
-    section Tuần 7 : UAT & Go-Live
-        Deployment : Kiểm thử chấp nhận người dùng (UAT), Sửa lỗi, Triển khai Production.
+    dateFormat  YYYY-MM-DD
+    axisFormat  Tuần %W
+
+    section Tuần 1
+    Phân tích & Kiến trúc (Yêu cầu, CSDL, Dev Env) :done, w1, 2026-08-17, 7d
+    section Tuần 2
+    Xác thực & User Service (Auth, OTP, Hồ sơ User) :active, w2, after w1, 7d
+    section Tuần 3
+    Booking Core (Đặt xe, Thuật toán tìm tài xế) :w3, after w2, 7d
+    section Tuần 4
+    GPS & Fare Engine (Tracking Websocket, Tính cước) :w4, after w3, 7d
+    section Tuần 5
+    Integration (Cổng thanh toán, Firebase Notification) :w5, after w4, 7d
+    section Tuần 6
+    Operations & QA (Web Admin, E2E Testing) :w6, after w5, 7d
+    section Tuần 7
+    Deployment (UAT, Fix bugs, Go-Live Production) :w7, after w6, 7d
 ```
