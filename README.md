@@ -1,4 +1,14 @@
 # CAB System - Nền Tảng Đặt Xe Trực Tuyến
+1tại sao làm hệ thống này
+2 stakeholder : tên, vai trò, tương tác vs hệ thống,
+3. stalkholder matrix
+4. Xác định phạm vi cần làm cho dự án làm cho hệ thống này hoat động trong vòng 7 tuần
+5. Chuyển các yêu cầu thanh yêu cầu về nghiệp vụ (business requirement)
+6. Phân rã các yêu cầu chức năng (vd: chức năng tìm tài xế: xác định vị trí kh, tài xế sẵn sàng, tính khoảng cách, chờ tài xế đồng ý) 
+7. vẽ usecase diagram
+8. đặc tả
+9. phân tích quy trình nghiệp vụ 
+10. phân tích quy tắc nghiệp vụ (business rules)
 
 ---
 
