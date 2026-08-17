@@ -91,6 +91,7 @@ Nền tảng **CAB System** được phát triển nhằm chuyển đổi toàn 
 | **Nhà cung cấp dịch vụ thông báo** | Đối tác bên thứ ba hỗ trợ chuyển tải thông báo (SMS, Push Notification...) đến khách hàng và tài xế qua các kênh hạ tầng. |
 
 ## 4. Ma Trận Stakeholder Metrix 
+
 ```mermaid
 quadrantChart
     title Stakeholder Matrix - CAB System
@@ -108,6 +109,7 @@ quadrantChart
     Nhà Cung Cấp Thanh Toán: [0.75, 0.35]
     Nhà Cung Cấp Thông Báo: [0.25, 0.35]
 
+```
 ## 4. Đơn Vị Nghiệp Vụ (Business Units) & Vai Trò Trong Hệ Thống
 
 ### 4.1. Tổng Quan Về Business Unit (BU)
@@ -150,3 +152,4 @@ graph LR
     style Finance fill:#fdf4ff,stroke:#e879f9,stroke-width:2px
     style Ops fill:#f5f3ff,stroke:#a78bfa,stroke-width:2px
     style CS fill:#eef2ff,stroke:#818cf8,stroke-width:2px
+```
