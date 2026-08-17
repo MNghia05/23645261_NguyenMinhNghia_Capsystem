@@ -153,3 +153,41 @@ graph LR
     style Ops fill:#f5f3ff,stroke:#a78bfa,stroke-width:2px
     style CS fill:#eef2ff,stroke:#818cf8,stroke-width:2px
 ```
+## 5. Phạm Vi Dự Án & Lộ Trình Triển Khai 7 Tuần (MVP Scope & Roadmap)
+
+Để đưa **CAB System** vào hoạt động thực tế đúng hạn trong **7 tuần**, dự án áp dụng chiến lược **MVP (Minimum Viable Product)**: tập trung xây dựng luồng nghiệp vụ cốt lõi (Đặt xe - Ghép chuyến - Theo dõi - Thanh toán) và hoãn lại các tính năng nâng cao sang giai đoạn 2.
+
+---
+
+### 5.1. Bảng Tóm Tắt Phạm Vi (In-Scope vs. Out-of-Scope)
+
+| Hạng mục | Trong phạm vi MVP (7 tuần) | Giai đoạn 2 (Out-of-Scope) |
+| :--- | :--- | :--- |
+| **Đặt xe & Ghép chuyến** | • Đặt xe tức thì (Book now).<br>• Tìm & phân công tài xế gần nhất (bán kính cố định). | • Đặt xe theo lịch (Schedule ride).<br>• Đi chung xe (Ride sharing / Pooling). |
+| **Định vị & Theo dõi** | • Cập nhật vị trí GPS tài xế thời gian thực.<br>• Tính quãng đường & thời gian dự kiến (Google Maps API). | • Tối ưu hóa lộ trình đa điểm dừng (Multi-stop).<br>• Cảnh báo lệch tuyến thông minh. |
+| **Tính cước & Thanh toán** | • Bảng giá cố định theo km + thời gian chờ.<br>• Tích hợp 01 cổng thanh toán điện tử (VNPay/Momo) + Tiền mặt. | • Thuật toán tăng giá theo cầu (Surge Pricing).<br>• Mã giảm giá/Khuyến mãi phức tạp. |
+| **Quản trị & Vận hành** | • Admin Dashboard: Quản lý Tài xế, Khách hàng, Chuyến đi.<br>• Tra cứu lịch sử & xử lý sự cố cơ bản. | • Hệ thống BI/Analytics chuyên sâu.<br>• Tự động hóa đối soát tài chính nâng cao. |
+| **Thông báo & Đánh giá** | • Gửi Push Notification (Firebase) & SMS OTP.<br>• Đánh giá sao (1-5★) + nhận xét ngắn sau chuyến. | • Chương trình Khách hàng thân thiết (Loyalty Point).<br>• Chat trực tiếp trong ứng dụng (In-app Chat). |
+
+---
+
+### 5.2. Lộ Trình Triển Khai Chi Tiết Trong 7 Tuần (7-Week Roadmap)
+
+```mermaid
+timeline
+    title Lộ trình triển khai CAB System (7 Tuần)
+    section Tuần 1 : Phân tích & Kiến trúc
+        Yêu cầu & DB Design : Chốt quy tắc nghiệp vụ, thiết kế CSDL, Setup môi trường dev.
+    section Tuần 2 : Xác thực & Quản lý User
+        Auth & User Service : Đăng ký/Đăng nhập (OTP), quản lý Hồ sơ Khách hàng & Tài xế.
+    section Tuần 3 : Luồng Đặt xe & Ghép chuyến
+        Booking Core : Đặt xe, Thuật toán tìm tài xế gần nhất, Nhận/Từ chối chuyến.
+    section Tuần 4 : Định vị & Tính cước
+        GPS & Fare Engine : Theo dõi vị trí thời gian thực (Websocket), Tính cước tự động.
+    section Tuần 5 : Thanh toán & Thông báo
+        Integration : Tích hợp Cổng thanh toán (VNPay/Momo) & Firebase Notification.
+    section Tuần 6 : Admin Dashboard & Testing
+        Operations & QA : Hoàn thiện Web Admin Vận hành, Kiểm thử tích hợp (E2E Testing).
+    section Tuần 7 : UAT & Go-Live
+        Deployment : Kiểm thử chấp nhận người dùng (UAT), Sửa lỗi, Triển khai Production.
+```
