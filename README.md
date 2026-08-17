@@ -107,3 +107,46 @@ quadrantChart
     Nhân Viên Vận Hành: [0.42, 0.80]
     Nhà Cung Cấp Thanh Toán: [0.75, 0.35]
     Nhà Cung Cấp Thông Báo: [0.25, 0.35]
+
+## 4. Đơn Vị Nghiệp Vụ (Business Units) & Vai Trò Trong Hệ Thống
+
+### 4.1. Tổng Quan Về Business Unit (BU)
+**Business Unit (BU - Đơn vị Nghiệp vụ)** là các phân vùng chức năng đại diện cho từng khối phòng ban hoặc bộ phận hoạt động chuyên biệt trong doanh nghiệp. Trong kiến trúc hệ thống **CAB System**, các BU đóng vai trò phân định ranh giới trách nhiệm, quy tắc nghiệp vụ và luồng xử lý dữ liệu độc lập.
+
+---
+
+### 4.2. Vai Trò Của Business Unit Trong Kiến Trúc Hệ Thống
+
+* **Phân định ranh giới nghiệp vụ (Bounded Context):** Chia nhỏ hệ thống thành các module/microservices độc lập. Mỗi BU sở hữu logic nghiệp vụ và dữ liệu riêng, giảm sự phụ thuộc chéo (tight coupling) giữa các thành phần.
+* **Quản lý phân quyền & Bảo mật (RBAC):** Thiết lập ranh giới truy cập dữ liệu. Cán bộ thuộc BU nào chỉ có thẩm quyền xem, chỉnh sửa và thao tác trên tập dữ liệu thuộc phạm vi trách nhiệm của BU đó.
+* **Tối ưu hóa giao diện tác nghiệp (UI/UX Customization):** Cung cấp bộ công cụ và giao diện thiết kế riêng cho từng đặc thù công việc (vd: Live Map cho Vận hành, Ticket Center cho CS, Báo cáo doanh thu cho Finance).
+* **Đo lường hiệu suất & Báo cáo (Analytics & SLA):** Gom nhóm dữ liệu giao dịch để đo lường chỉ số KPI, hiệu quả vận hành và thời gian phản hồi (SLA) độc lập của từng bộ phận.
+
+---
+
+### 4.3. Phân Vùng Business Units Trong CAB System
+
+| Business Unit | Chức năng chính | Phạm vi Dữ liệu & Công cụ | Stakeholders liên quan |
+| :--- | :--- | :--- | :--- |
+| **Khối Vận hành** *(Operations)* | • Giám sát & điều phối chuyến đi thời gian thực.<br>• Quản lý danh sách, hồ sơ & trạng thái tài xế.<br>• Xử lý các sự cố phát sinh trên đường. | • Live Map Dashboard.<br>• Quản lý Chuyến đi, Tài xế, Định vị GPS. | Nhân viên vận hành, Tài xế |
+| **Khối Tài chính & Thanh toán** *(Finance & Billing)* | • Quản lý dòng tiền, tích hợp cổng thanh toán.<br>• Cấu hình bảng cước phí, tỷ lệ chiết khấu.<br>• Đối soát giao dịch & thanh toán cho tài xế. | • Bảng cấu hình Cước phí (Pricing Policy).<br>• Lịch sử giao dịch, Hóa đơn, Ví tài xế. | Ban lãnh đạo, Nhà cung cấp thanh toán, Tài xế |
+| **Khối Chăm sóc Khách hàng** *(Customer Support - CS)* | • Tiếp nhận & xử lý khiếu nại của khách hàng/tài xế.<br>• Xử lý yêu cầu hoàn tiền, đền bù chuyến đi.<br>• Quản lý hệ thống đánh giá & phản hồi. | • Hệ thống Quản lý Ticket (CS Portal).<br>• Lịch sử khiếu nại, Đánh giá (Rating/Review). | Khách hàng, Tài xế |
+| **Khối Quản trị & Chiến lược** *(Executive Management)* | • Theo dõi chỉ số tăng trưởng & báo cáo BI.<br>• Phê duyệt chính sách giá, khuyến mãi, ngân sách.<br>• Cấu hình các tham số vận hành toàn hệ thống. | • Executive Dashboard (Revenue, Growth).<br>• System Configuration, Audit Logs. | Ban lãnh đạo |
+
+---
+
+### 4.4. Sơ Đồ Tương Tác Giữa Các Business Units
+
+```mermaid
+graph LR
+    Management["Khối Quản trị & Chiến lược"] -->|Cấu hình giá & chính sách| Finance["Khối Tài chính & Thanh toán"]
+    Management -->|Ban hành quy trình vận hành| Ops["Khối Vận hành"]
+    
+    Ops -->|Chuyển sự cố thanh toán| Finance
+    CS["Khối Chăm sóc Khách hàng"] -->|Chuyển sự cố chuyến đi/tài xế| Ops
+    CS -->|Yêu cầu duyệt hoàn tiền| Finance
+
+    style Management fill:#fff7ed,stroke:#fb923c,stroke-width:2px
+    style Finance fill:#fdf4ff,stroke:#e879f9,stroke-width:2px
+    style Ops fill:#f5f3ff,stroke:#a78bfa,stroke-width:2px
+    style CS fill:#eef2ff,stroke:#818cf8,stroke-width:2px
