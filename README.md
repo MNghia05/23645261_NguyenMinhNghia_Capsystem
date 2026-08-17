@@ -1,74 +1,79 @@
-1.	Xác định yêu cầu hệ thống
-1.1.	Yêu cầu kinh doanh
-Nền tảng CAB System được phát triển nhằm thay đổi toàn bộ mô hình vận hành đặt xe của doanh nghiệp ABC từ thủ công sang tự động hóa, giúp quản lý tập trung toàn bộ thông tin thanh toán, phương tiện,
-khách hàng, tài xế và lịch sử giao dịch trên một hệ thống duy nhất. Nền tảng hướng tới mục tiêu tối ưu hóa quy trình điều phối và ghép chuyến tự động theo thời gian thực dựa trên vị trí và trạng thái tài xế,
-nâng cao trải nghiệm minh bạch cho khách hàng, đồng thời cung cấp hệ thống báo cáo phân tích toàn diện (doanh thu, số chuyến, tỷ lệ hoàn thành/hủy) cho ban giám đốc. Với kiến trúc linh hoạt,
-mở rộng độc lập và có tính chịu tải cao, hệ thống đảm bảo khả năng phục vụ số lượng lớn người dùng ở các mốc cao điểm và sẵn sàng cho việc mở rộng quy mô, tích hợp các dịch vụ hay phương thức kinh doanh mới trong tương lai.
+# CAB System - Nền Tảng Đặt Xe Trực Tuyến
 
-1.2.	Yêu cầu chức năng
-a.	Khách hàng (Customer)
-Đăng ký, đăng nhập và quản lý/cập nhật thông tin cá nhân. 
-Tạo yêu cầu chuyến đi: nhập điểm đón/đến, chọn loại xe và gửi yêu cầu. 
-Theo dõi chuyến đi theo thời gian thực: trạng thái tìm tài xế, thông tin tài xế nhận chuyến, thời gian dự kiến đến và trạng thái hành trình. 
-Xem lịch sử chuyến đi và chi tiết số tiền phải trả. 
-Thanh toán chuyến đi (tiền mặt hoặc thanh toán điện tử) và xử lý lại nếu giao dịch điện tử thất bại. 
-Đánh giá tài xế sau khi hoàn thành chuyến đi. 
-b.	Tài xế (Driver)
-Đăng ký tài khoản (hoặc được nhân viên vận hành tạo) và cập nhật hồ sơ, thông tin phương tiện. 
-Bật/tắt trạng thái sẵn sàng làm việc/nhận chuyến. 
-Nhận thông báo yêu cầu chuyến đi phù hợp; thực hiện chấp nhận hoặc từ chối chuyến. 
-Cập nhật tiến trình/trạng thái chuyến đi: Đã đến điểm đón, Đã đón khách, Đang di chuyển, Hoàn thành chuyến. 
-Tự động gửi/cập nhật dữ liệu vị trí địa lý theo thời gian thực về hệ thống. 
-c.	Thuật toán & Phân công chuyến (Dispatching & Matching)
-Tự động xác định tài xế phù hợp dựa trên vị trí, trạng thái sẵn sàng và tiêu chí vận hành. 
-Tự động chuyển giao yêu cầu cho tài xế khác nếu tài xế đầu tiên từ chối hoặc không phản hồi mà không bắt khách hàng tạo lại yêu cầu. 
-Thông báo rõ ràng cho khách hàng trong trường hợp không tìm được tài xế phù hợp. 
-d.	Tính cước & Thanh toán (Pricing & Payment)
-Tự động tính toán số tiền cước sau khi hoàn thành chuyến đi dựa trên thông tin chuyến đi và loại dịch vụ. 
-Tích hợp cổng thanh toán điện tử bên ngoài để xử lý giao dịch trực tuyến. 
-e.	Quản trị & Vận hành (Operations & Management)
-Giao diện quản trị viên cho nhân viên vận hành quản lý khách hàng, tài xế, phương tiện và chuyến đi. 
-Xem danh sách các chuyến đi đang diễn ra, kiểm tra trạng thái tài xế và hỗ trợ xử lý sự cố/chuyến lỗi. 
-Tra cứu lịch sử giao dịch và phân quyền người dùng (giới hạn các thao tác nhạy cảm đối với nhân viên thông thường). 
-Xuất báo cáo thống kê cho ban lãnh đạo về tổng số chuyến, doanh thu, tỷ lệ hoàn thành/hủy chuyến, hiệu quả làm việc của tài xế. 
-f.	Thông báo (Notifications)
-Gửi thông báo đến khách hàng: tiếp nhận yêu cầu, tài xế nhận chuyến, tài xế đến điểm đón, hoàn thành chuyến, kết quả thanh toán. 
-Gửi thông báo đến tài xế: có chuyến mới, thay đổi thông tin liên quan đến chuyến đang thực hiện.
-1.3.	Yêu cầu phi chức năng
-a.	Hiệu năng & Khả năng mở rộng (Performance & Scalability):
-Hệ thống hoạt động ổn định, chịu tải tốt vào các thời điểm cao điểm. 
-Kiến trúc dạng mô-đun/thành phần cho phép mở rộng độc lập từng phần khi lưu lượng truy cập tăng. 
-b.	Độ tin cậy & Độ sẵn sàng (Reliability & Availability):
-Thiết kế có khả năng cách ly sự cố: lỗi ở mô-đun thanh toán hoặc thông báo không làm ngưng trệ toàn bộ hệ thống đặt xe. 
-Triển khai cập nhật chức năng mới theo từng phần, hạn chế gián đoạn các tính năng đang hoạt động. 
-c.	Bảo mật (Security):
-Yêu cầu xác thực tài khoản bắt buộc đối với khách hàng và tài xế trước khi truy cập các tính năng cá nhân. 
-Phân quyền truy cập nghiêm ngặt đối với các thao tác quản trị chuyên sâu. 
-Bảo vệ an toàn dữ liệu cá nhân, thông tin phương tiện, vị trí và lịch sử giao dịch. 
-Không lưu trữ trực tiếp các thông tin thẻ/tài khoản thanh toán nhạy cảm trên hệ thống CAB (ủy quyền cho nhà cung cấp thanh toán bên ngoài). 
+---
 
-2.	Xác định các tác nhân của hệ thống
-•	Khách hàng (Customer):
-Người dùng cuối đăng ký, đăng nhập, nhập thông tin chuyến đi (điểm đón/đến, loại xe), gửi yêu cầu đặt xe, theo dõi hành trình và xem trạng thái chuyến đi. 
-Thực hiện thanh toán (tiền mặt hoặc điện tử), xem lịch sử chuyến đi và đánh giá tài xế sau khi hoàn thành. 
-•	Tài xế (Driver):
-Người điều khiển phương tiện, cập nhật hồ sơ, thông tin xe và trạng thái hoạt động (sẵn sàng/không sẵn sàng nhận chuyến). 
-Nhận thông báo chuyến mới, chấp nhận/từ chối chuyến và cập nhật các trạng thái chuyến đi (đã đến điểm đón, đã đón khách, đang di chuyển, hoàn thành). 
-•	Nhân viên vận hành (Operations Staff / Admin):
-Sử dụng giao diện quản trị để quản lý thông tin khách hàng, tài xế, phương tiện và danh sách chuyến đi. 
-Hỗ trợ tạo tài khoản cho tài xế, kiểm tra trạng thái hoạt động, xử lý sự cố/lỗi chuyến đi và tra cứu lịch sử giao dịch. 
-•	Ban giám đốc / Ban lãnh đạo (Management):
-Xem các báo cáo thống kê về tổng số chuyến đi, doanh thu, tỷ lệ hoàn thành/hủy chuyến và hiệu quả hoạt động của tài xế để phục vụ quản lý, vận hành. 
-•	Nhà cung cấp thanh toán bên ngoài (External Payment Provider):
-Hệ thống bên thứ ba chịu trách nhiệm tiếp nhận giao dịch và xử lý thanh toán điện tử cho khách hàng nhằm tránh việc lưu trữ trực tiếp thông tin thẻ/tài khoản nhạy cảm trên nền tảng CAB. 
-•	Nhà cung cấp dịch vụ thông báo (External Notification Provider):
-Hệ thống bên thứ ba hỗ trợ gửi thông báo (SMS, Push Notification, Email...) đến khách hàng và tài xế qua các kênh thông báo. 
+## 1. Xác Định Yêu Cầu Hệ Thống
 
-d.	Tính kiểm toán (Auditability):
-Lưu vết đầy đủ nhật ký (logs) các thao tác quan trọng để phục vụ tra cứu, kiểm tra khi phát sinh sự cố. 
-e.	Tính linh hoạt & Khả năng bảo trì (Flexibility & Maintainability):
-Kiến trúc hệ thống linh hoạt, cho phép tích hợp thêm phương thức thanh toán mới, mở rộng kênh gửi thông báo hoặc bổ sung loại hình dịch vụ mới trong tương lai mà không phải đập đi xây lại toàn bộ ứng dụng. 
+### 1.1. Yêu Cầu Kinh Doanh (Business Requirements)
 
+Nền tảng **CAB System** được phát triển nhằm chuyển đổi toàn bộ mô hình vận hành đặt xe của doanh nghiệp ABC từ thủ công sang tự động hóa, giúp quản lý tập trung thông tin thanh toán, phương tiện, khách hàng, tài xế và lịch sử giao dịch trên một hệ thống duy nhất[cite: 1]. Nền tảng hướng tới mục tiêu:
+* **Tối ưu hóa điều phối:** Tự động ghép chuyến theo thời gian thực dựa trên vị trí và trạng thái hoạt động của tài xế[cite: 1].
+* **Nâng cao trải nghiệm:** Cung cấp thông tin minh bạch, rõ ràng cho khách hàng xuyên suốt hành trình[cite: 1].
+* **Phân tích & Quản trị:** Cung cấp hệ thống báo cáo phân tích toàn diện (doanh thu, số lượng chuyến, tỷ lệ hoàn thành/hủy) phục vụ Ban giám đốc ra quyết định[cite: 1].
+* **Mở rộng linh hoạt:** Kiến trúc dạng mô-đun chịu tải cao, đảm bảo hoạt động ổn định trong giờ cao điểm và sẵn sàng tích hợp các dịch vụ hay phương thức kinh doanh mới trong tương lai[cite: 1].
+
+---
+
+### 1.2. Yêu Cầu Chức Năng (Functional Requirements)
+
+#### a. Khách hàng (Customer)
+* **Tài khoản:** Đăng ký, đăng nhập và cập nhật thông tin cá nhân[cite: 1].
+* **Đặt xe:** Nhập điểm đón/đến, chọn loại xe và gửi yêu cầu chuyến đi[cite: 1].
+* **Theo dõi hành trình:** Theo dõi trạng thái chuyến đi real-time (tìm tài xế, thông tin tài xế nhận chuyến, thời gian dự kiến đến - ETA, trạng thái di chuyển)[cite: 1].
+* **Lịch sử & Cước phí:** Xem lịch sử các chuyến đi và chi tiết số tiền phải trả[cite: 1].
+* **Thanh toán:** Thanh toán linh hoạt bằng tiền mặt hoặc thanh toán điện tử; hỗ trợ xử lý lại nếu giao dịch thất bại[cite: 1].
+* **Đánh giá:** Gửi đánh giá/phản hồi về tài xế sau khi hoàn thành chuyến đi[cite: 1].
+
+#### b. Tài xế (Driver)
+* **Tài khoản & Phương tiện:** Đăng ký tài khoản (hoặc nhờ nhân viên vận hành khởi tạo), cập nhật hồ sơ và thông tin xe[cite: 1].
+* **Trạng thái làm việc:** Bật/tắt trạng thái sẵn sàng nhận chuyến[cite: 1].
+* **Điều phối chuyến:** Nhận thông báo yêu cầu chuyến đi phù hợp; thực hiện chấp nhận hoặc từ chối chuyến[cite: 1].
+* **Cập nhật tiến trình:** Cập nhật trạng thái chuyến đi theo thứ tự: *Đã đến điểm đón* $\rightarrow$ *Đã đón khách* $\rightarrow$ *Đang di chuyển* $\rightarrow$ *Hoàn thành chuyến*[cite: 1].
+* **Vị trí địa lý:** Tự động gửi dữ liệu định vị (GPS) theo thời gian thực về hệ thống[cite: 1].
+
+#### c. Thuật toán & Phân công chuyến (Dispatching & Matching)
+* Tự động xác định tài xế phù hợp dựa trên vị trí, trạng thái sẵn sàng và các tiêu chí vận hành[cite: 1].
+* Tự động chuyển giao yêu cầu cho tài xế tiếp theo nếu tài xế đầu tiên từ chối hoặc không phản hồi mà không bắt khách hàng thao tác lại[cite: 1].
+* Thông báo rõ ràng cho khách hàng trong trường hợp không tìm thấy tài xế phù hợp[cite: 1].
+
+#### d. Tính cước & Thanh toán (Pricing & Payment)
+* Tự động tính toán tổng cước phí sau khi hoàn thành chuyến đi dựa trên dịch vụ và thông tin hành trình[cite: 1].
+* Tích hợp cổng thanh toán điện tử bên ngoài để xử lý các giao dịch trực tuyến an toàn[cite: 1].
+
+#### e. Quản trị & Vận hành (Operations & Management)
+* **Giao diện Admin:** Cho phép nhân viên vận hành quản lý dữ liệu khách hàng, tài xế, phương tiện và danh sách chuyến đi[cite: 1].
+* **Giám sát & Hỗ trợ:** Xem danh sách chuyến đi đang diễn ra, kiểm tra trạng thái tài xế và hỗ trợ xử lý chuyến lỗi/sự cố[cite: 1].
+* **Phân quyền & Kiểm soát:** Tra cứu lịch sử giao dịch và phân quyền người dùng (giới hạn thao tác nhạy cảm đối với nhân viên thông thường)[cite: 1].
+* **Báo cáo thống kê:** Xuất báo cáo chi tiết cho Ban lãnh đạo về tổng số chuyến, doanh thu, tỷ lệ hoàn thành/hủy, hiệu suất tài xế[cite: 1].
+
+#### f. Thông báo (Notifications)
+* **Khách hàng:** Nhận thông báo tiếp nhận yêu cầu, tài xế nhận chuyến, tài xế đến điểm đón, hoàn thành chuyến và kết quả thanh toán[cite: 1].
+* **Tài xế:** Nhận thông báo chuyến mới hoặc các thay đổi liên quan đến chuyến đang thực hiện[cite: 1].
+
+---
+
+### 1.3. Yêu Cầu Phi Chức Năng (Non-Functional Requirements)
+
+| Nhóm yêu cầu | Chi tiết yêu cầu |
+| :--- | :--- |
+| **Hiệu năng & Mở rộng** | • Hệ thống vận hành ổn định, chịu tải tốt trong giờ cao điểm.<br>• Kiến trúc dạng mô-đun cho phép mở rộng độc lập từng thành phần khi tải tăng[cite: 1]. |
+| **Độ tin cậy & Sẵn sàng**| • Khả năng cách ly sự cố (lỗi ở mô-đun thanh toán/thông báo không ngưng trệ việc đặt xe).<br>• Triển khai cập nhật tính năng mới từng phần, hạn chế tối đa gián đoạn hệ thống[cite: 1]. |
+| **Bảo mật (Security)** | • Bắt buộc xác thực tài khoản trước khi truy cập tính năng cá nhân.<br>• Phân quyền truy cập nghiêm ngặt cho các thao tác quản trị.<br>• Bảo vệ an toàn dữ liệu cá nhân, thông tin phương tiện, vị trí và giao dịch.<br>• **Không lưu trực tiếp** thông tin thẻ/tài khoản thanh toán nhạy cảm trên nền tảng[cite: 1]. |
+| **Tính kiểm toán** | • Lưu vết nhật ký (logs) đầy đủ đối với các thao tác quan trọng để tra cứu khi có sự cố[cite: 1]. |
+| **Tính linh hoạt** | • Kiến trúc linh hoạt, dễ dàng tích hợp thêm cổng thanh toán, kênh thông báo hoặc dịch vụ mới mà không cần tái cấu trúc toàn bộ ứng dụng[cite: 1]. |
+
+---
+
+## 2. Các Tác Nhân Của Hệ Thống (System Actors)
+
+| Tác nhân | Loại | Mô tả vai trò |
+| :--- | :--- | :--- |
+| **Khách hàng** *(Customer)* | Human | Người dùng cuối đăng ký/đăng nhập, tạo yêu cầu đặt xe, theo dõi hành trình, thanh toán, xem lịch sử và đánh giá chất lượng tài xế[cite: 1]. |
+| **Tài xế** *(Driver)* | Human | Người điều khiển phương tiện, cập nhật thông tin xe/hồ sơ, bật/tắt trạng thái nhận chuyến, tiếp nhận chuyến và cập nhật tiến trình chuyến đi real-time[cite: 1]. |
+| **Nhân viên vận hành** *(Operations Staff)* | Human | Sử dụng giao diện Admin để quản lý dữ liệu hệ thống, tạo tài khoản tài xế, giám sát chuyến đi, xử lý sự cố và tra cứu giao dịch[cite: 1]. |
+| **Ban giám đốc** *(Management)* | Human | Theo dõi hệ thống báo cáo thống kê (doanh thu, tỷ lệ hoàn thành/hủy, hiệu suất) để quản trị và đưa ra định hướng chiến lược[cite: 1]. |
+| **Nhà cung cấp thanh toán** *(External Payment Provider)* | External System | Hệ thống bên thứ ba xử lý giao dịch thanh toán điện tử an toàn, giúp loại bỏ việc lưu trữ dữ liệu thẻ nhạy cảm trên CAB System[cite: 1]. |
+| **Nhà cung cấp thông báo** *(External Notification Provider)* | External System | Hệ thống bên thứ ba đảm nhận việc truyền tải thông báo (SMS, Push Notification, Email) đến khách hàng và tài xế[cite: 1]. |
 3.	Stalkholder
 ## Các Bên Liên Quan (Stakeholders)
 
