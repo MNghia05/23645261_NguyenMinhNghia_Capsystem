@@ -112,22 +112,6 @@ quadrantChart
 ```
 ## 4. Đơn Vị Nghiệp Vụ (Business Units) & Vai Trò Trong Hệ Thống
 
-### 4.1. Tổng Quan Về Business Unit (BU)
-**Business Unit (BU - Đơn vị Nghiệp vụ)** là các phân vùng chức năng đại diện cho từng khối phòng ban hoặc bộ phận hoạt động chuyên biệt trong doanh nghiệp. Trong kiến trúc hệ thống **CAB System**, các BU đóng vai trò phân định ranh giới trách nhiệm, quy tắc nghiệp vụ và luồng xử lý dữ liệu độc lập.
-
----
-
-### 4.2. Vai Trò Của Business Unit Trong Kiến Trúc Hệ Thống
-
-* **Phân định ranh giới nghiệp vụ (Bounded Context):** Chia nhỏ hệ thống thành các module/microservices độc lập. Mỗi BU sở hữu logic nghiệp vụ và dữ liệu riêng, giảm sự phụ thuộc chéo (tight coupling) giữa các thành phần.
-* **Quản lý phân quyền & Bảo mật (RBAC):** Thiết lập ranh giới truy cập dữ liệu. Cán bộ thuộc BU nào chỉ có thẩm quyền xem, chỉnh sửa và thao tác trên tập dữ liệu thuộc phạm vi trách nhiệm của BU đó.
-* **Tối ưu hóa giao diện tác nghiệp (UI/UX Customization):** Cung cấp bộ công cụ và giao diện thiết kế riêng cho từng đặc thù công việc (vd: Live Map cho Vận hành, Ticket Center cho CS, Báo cáo doanh thu cho Finance).
-* **Đo lường hiệu suất & Báo cáo (Analytics & SLA):** Gom nhóm dữ liệu giao dịch để đo lường chỉ số KPI, hiệu quả vận hành và thời gian phản hồi (SLA) độc lập của từng bộ phận.
-
----
-
-### 4.3. Phân Vùng Business Units Trong CAB System
-
 | Business Unit | Chức năng chính | Phạm vi Dữ liệu & Công cụ | Stakeholders liên quan |
 | :--- | :--- | :--- | :--- |
 | **Khối Vận hành** *(Operations)* | • Giám sát & điều phối chuyến đi thời gian thực.<br>• Quản lý danh sách, hồ sơ & trạng thái tài xế.<br>• Xử lý các sự cố phát sinh trên đường. | • Live Map Dashboard.<br>• Quản lý Chuyến đi, Tài xế, Định vị GPS. | Nhân viên vận hành, Tài xế |
