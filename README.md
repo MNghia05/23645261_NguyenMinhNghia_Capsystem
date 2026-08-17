@@ -91,7 +91,7 @@ Nền tảng **CAB System** được phát triển nhằm chuyển đổi toàn 
 | **Nhà cung cấp dịch vụ thông báo** | Đối tác bên thứ ba hỗ trợ chuyển tải thông báo (SMS, Push Notification...) đến khách hàng và tài xế qua các kênh hạ tầng. |
 
 ## 4. Ma Trận Stakeholder Metrix 
-
+```mermaid
 ---
 config:
   layout: elk
