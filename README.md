@@ -201,54 +201,50 @@ flowchart LR
     Payment["💳 Cổng thanh toán"]
     Notify["📢 Nhà cung cấp thông báo"]
 
-    subgraph CAB["HỆ THỐNG CAB"]
-        direction TB
+    %% Chức năng Khách hàng
+    C1(["C1: Đăng ký / đăng nhập"])
+    C2(["C2: Quản lý hồ sơ"])
+    C3(["C3: Đặt xe"])
+    C4(["C4: Theo dõi chuyến đi"])
+    C5(["C5: Xem lịch sử chuyến"])
+    C6(["C6: Thanh toán"])
+    C7(["C7: Đánh giá tài xế"])
+    C8(["C8: Hủy chuyến"])
 
-        %% Chức năng Khách hàng
-        C1(["C1: Đăng ký / đăng nhập"])
-        C2(["C2: Quản lý hồ sơ"])
-        C3(["C3: Đặt xe"])
-        C4(["C4: Theo dõi chuyến đi"])
-        C5(["C5: Xem lịch sử chuyến"])
-        C6(["C6: Thanh toán"])
-        C7(["C7: Đánh giá tài xế"])
-        C8(["C8: Hủy chuyến"])
+    %% Chức năng Tài xế
+    D1(["D1: Quản lý hồ sơ & xe"])
+    D2(["D2: Cập nhật trạng thái"])
+    D3(["D3: Nhận yêu cầu chuyến"])
+    D4(["D4: Chấp nhận / từ chối"])
+    D5(["D5: Cập nhật chuyến đi"])
+    D6(["D6: Cập nhật vị trí"])
 
-        %% Chức năng Tài xế
-        D1(["D1: Quản lý hồ sơ & xe"])
-        D2(["D2: Cập nhật trạng thái"])
-        D3(["D3: Nhận yêu cầu chuyến"])
-        D4(["D4: Chấp nhận / từ chối"])
-        D5(["D5: Cập nhật chuyến đi"])
-        D6(["D6: Cập nhật vị trí"])
+    %% Chức năng Vận hành & Admin
+    O1(["O1: Tạo tài khoản tài xế"])
+    O2(["O2: Quản lý dữ liệu hệ thống"])
+    O3(["O3: Theo dõi chuyến đang đi"])
+    O4(["O4: Kiểm tra trạng thái tài xế"])
+    O5(["O5: Xử lý chuyến lỗi"])
+    O6(["O6: Tra cứu giao dịch"])
+    O7(["O7: Phân quyền nhân viên"])
+    O8(["O8: Xem báo cáo"])
+    O9(["O9: Nhật ký thao tác"])
 
-        %% Chức năng Vận hành & Admin
-        O1(["O1: Tạo tài khoản tài xế"])
-        O2(["O2: Quản lý dữ liệu hệ thống"])
-        O3(["O3: Theo dõi chuyến đang đi"])
-        O4(["O4: Kiểm tra trạng thái tài xế"])
-        O5(["O5: Xử lý chuyến lỗi"])
-        O6(["O6: Tra cứu giao dịch"])
-        O7(["O7: Phân quyền nhân viên"])
-        O8(["O8: Xem báo cáo"])
-        O9(["O9: Nhật ký thao tác"])
+    %% Chức năng Nền tảng
+    S1(["S1: Xác thực & phân quyền"])
+    S2(["S2: Tìm tài xế phù hợp"])
+    S3(["S3: Ưu tiên tài xế gần"])
+    S4(["S4: Gửi yêu cầu chuyến"])
+    S5(["S5: Tìm tài xế thay thế"])
+    S6(["S6: Thông báo không tìm thấy"])
+    S7(["S7: Theo dõi vị trí & ETA"])
+    S8(["S8: Tính cước chuyến đi"])
+    S9(["S9: Xử lý thanh toán"])
+    S10(["S10: Thanh toán thất bại"])
+    S11(["S11: Gửi thông báo đa kênh"])
+    S12(["S12: Ghi nhật ký kiểm toán"])
 
-        %% Chức năng Nền tảng
-        S1(["S1: Xác thực & phân quyền"])
-        S2(["S2: Tìm tài xế phù hợp"])
-        S3(["S3: Ưu tiên tài xế gần"])
-        S4(["S4: Gửi yêu cầu chuyến"])
-        S5(["S5: Tìm tài xế thay thế"])
-        S6(["S6: Thông báo không tìm thấy"])
-        S7(["S7: Theo dõi vị trí & ETA"])
-        S8(["S8: Tính cước chuyến đi"])
-        S9(["S9: Xử lý thanh toán"])
-        S10(["S10: Thanh toán thất bại"])
-        S11(["S11: Gửi thông báo đa kênh"])
-        S12(["S12: Ghi nhật ký kiểm toán"])
-    end
-
-    %% Nối trực tiếp Actor vào từng nút (Không qua khung trung gian)
+    %% Nối trực tiếp Actor vào từng Use Case
     Customer --- C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8
     Driver --- D1 & D2 & D3 & D4 & D5 & D6
     Operator --- O1 & O2 & O3 & O4 & O5 & O6 & O8
@@ -272,7 +268,7 @@ flowchart LR
     C6 --- Payment
     S11 --- Notify
 
-    %% Màu sắc định dạng
+    %% Định dạng màu sắc phân biệt từng nhóm
     classDef actor fill:#eef2ff,stroke:#6366f1,stroke-width:2px
     classDef customer fill:#ecfeff,stroke:#06b6d4,stroke-width:1.5px
     classDef driver fill:#f0fdf4,stroke:#22c55e,stroke-width:1.5px
