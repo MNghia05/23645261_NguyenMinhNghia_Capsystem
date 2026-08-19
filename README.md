@@ -470,3 +470,55 @@ flowchart TD
     J -- Có --> K[Hoàn tất chuyến đi]
     J -- Không --> L[Tự động chuyển trạng thái Tài xế về OFFLINE & Yêu cầu nạp tiền]
 ```
+---
+
+## 10. Phân Tích Quy Tắc Nghiệp Vụ (Business Rules)
+
+Các quy tắc nghiệp vụ điều hướng toàn bộ logic vận hành của CAB System, được phân loại chi tiết nhằm làm căn cứ trực tiếp cho đội ngũ phát triển (Developers) triển khai mã nguồn và đội kiểm thử (QA/Tester) xây dựng kịch bản kiểm thử.
+
+---
+
+### 10.1. Nhóm Quy Tắc Định Danh & Tài Khoản (Access & Eligibility Rules)
+
+| Mã Rule | Tên Quy Tắc | Mô Tả Logic Nghiệp Vụ Chi Tiết |
+| :--- | :--- | :--- |
+| **BR-RULE-01** | **Kích hoạt tài khoản làm việc của Tài xế** | Tài xế chỉ được phép bật trạng thái làm việc sang `AVAILABLE` khi thỏa mãn đồng thời 3 điều kiện:<br>1. Hồ sơ cá nhân và giấy tờ xe đã được Nhân viên vận hành phê duyệt (`Status = ACTIVE`).<br>2. Số dư khả dụng trong Ví tài xế `>= 100.000 VNĐ`.<br>3. Điểm đánh giá chất lượng dịch vụ trung bình (Rating) `>= 3.0 stars`. |
+| **BR-RULE-02** | **Chống đặt trùng chuyến (Single Active Ride)** | Tại một thời điểm, mỗi tài khoản Khách hàng và Tài xế chỉ được phép tham gia duy nhất 01 chuyến đi chưa hoàn thành (trạng thái `ACCEPTED`, `ARRIVED`, hoặc `IN_PROGRESS`). Hệ thống tự động khóa nút khởi tạo chuyến mới nếu phát hiện có luồng chưa kết thúc. |
+
+---
+
+### 10.2. Nhóm Quy Tắc Ghép Chuyến & Điều Phối (Dispatch & Matching Rules)
+
+| Mã Rule | Tên Quy Tắc | Mô Tả Logic Nghiệp Vụ Chi Tiết |
+| :--- | :--- | :--- |
+| **BR-RULE-03** | **Điểm ưu tiên đề xuất ghép chuyến** | Khi có yêu cầu mới, hệ thống tính toán và sắp xếp thứ tự gửi đề xuất nhận chuyến cho các tài xế thỏa mãn điều kiện theo công thức:<br>`Điểm ưu tiên = (1 / Khoảng cách GPS km) * 0.6 + (Rating tài xế) * 0.4` |
+| **BR-RULE-04** | **Thời gian phản hồi nhận chuyến (Timeout)** | Tài xế có đúng **15 giây** đếm ngược để chọn "Chấp nhận" hoặc "Từ chối". Hết 15 giây không thao tác, hệ thống tự động coi như "Từ chối" (Timeout) và chuyển đề xuất sang tài xế tiếp theo. |
+| **BR-RULE-05** | **Hạn mức thử lại khi ghép chuyến (Retry Limits)** | Hệ thống thực hiện tìm kiếm tài xế tối đa **03 lượt** hoặc trong tổng thời gian **120 giây**. Nếu quá thời hạn này không có tài xế nhận, chuyến đi sẽ chuyển sang trạng thái `FAILED` và phát thông báo thông cảm tới khách hàng. |
+
+---
+
+### 10.3. Nhóm Quy Tắc Tính Giá & Thanh Toán (Pricing & Settlement Rules)
+
+| Mã Rule | Tên Quy Tắc | Mô Tả Logic Nghiệp Vụ Chi Tiết |
+| :--- | :--- | :--- |
+| **BR-RULE-06** | **Công thức tính cước phí chuyến đi** | Tổng tiền thanh toán được tính theo công thức:<br>`Cước phí = Giá mở cửa + Max(0, Số km thực tế - Km mở cửa) * Đơn giá/km + Phí chờ`<br>*Lưu ý:* Áp dụng giá **Upfront Price** (Giá cố định chốt ban đầu) nếu hành trình thực tế không thay đổi quá 500m so với dự kiến. |
+| **BR-RULE-07** | **Khấu trừ chiết khấu & Quản lý Ví tài xế** | • Tỷ lệ hoa hồng trích thu hệ thống mặc định là **20%** trên tổng cước phí chuyến đi.<br>• Khi chuyến đi đổi trạng thái sang `COMPLETED`, hệ thống lập tức tự động trừ 20% vào Ví tài xế.<br>• Nếu số dư ví rơi xuống dưới `0 VNĐ`, tài xế tự động bị chuyển về trạng thái `OFFLINE` và không thể nhận thêm chuyến mới. |
+| **BR-RULE-08** | **Chuyển đổi dự phòng khi lỗi thanh toán (Payment Fallback)** | Nếu giao dịch trừ tiền qua Cổng thanh toán điện tử bị lỗi (Thẻ không đủ tiền, lỗi cổng):<br>1. Hệ thống lập tức tự động đổi phương thức thanh toán của chuyến đi sang **Tiền mặt**.<br>2. Bắn Push Notification báo lỗi và chỉ dẫn Tài xế thu tiền mặt trực tiếp từ Khách.<br>3. Ghi log lịch sử giao dịch lỗi để đối soát hệ thống. |
+
+---
+
+### 10.4. Nhóm Quy Tắc Hủy Chuyến & Xử Phạt (Cancellation & Penalty Rules)
+
+| Mã Rule | Tên Quy Tắc | Mô Tả Logic Nghiệp Vụ Chi Tiết |
+| :--- | :--- | :--- |
+| **BR-RULE-09** | **Chính sách phí phạt hủy chuyến** | • Khách hàng hủy chuyến sau 2 phút tính từ lúc Tài xế nhận chuyến (`ACCEPTED`): Phạt `15.000 VNĐ` (Ghi nợ và cộng vào cước phí của chuyến đi tiếp theo).<br>• Tài xế tự ý hủy chuyến khi chưa đến điểm đón hoặc chưa chờ đủ 5 phút: Phạt `20.000 VNĐ` (Trừ trực tiếp vào Ví tài xế) và trừ `0.2 star` điểm uy tín nhận chuyến. |
+| **BR-RULE-10** | **Tự động khóa tài khoản vi phạm** | • Khóa quyền nhận chuyến của Tài xế trong **24 giờ** nếu tỷ lệ hủy chuyến trong ngày vượt quá **30%**.<br>• Tạm khóa tài khoản chờ Vận hành xử lý nếu điểm đánh giá trung bình tích lũy bị rơi xuống dưới **3.0 stars** (Tính trên tối thiểu 20 chuyến gần nhất). |
+
+---
+
+### 10.5. Nhóm Quy Tắc An Toàn & Kỹ Thuật (Safety & Non-Functional Rules)
+
+| Mã Rule | Tên Quy Tắc | Mô Tả Logic Nghiệp Vụ Chi Tiết |
+| :--- | :--- | :--- |
+| **BR-RULE-11** | **Bảo mật dữ liệu thanh toán (PCI-DSS Standard)** | Tuyệt đối **KHÔNG** lưu trữ các thông tin nhạy cảm của thẻ thanh toán (Số thẻ đầy đủ, mã CVV/CVC, Mật khẩu OTP) trên cơ sở dữ liệu của hệ thống CAB. Tất cả giao dịch phải thông qua mã định danh Tokenization từ Nhà cung cấp cổng thanh toán. |
+| **BR-RULE-12** | **Tần suất cập nhật vị trí GPS (Live Streaming)** | Thiết bị của Tài xế ở trạng thái `AVAILABLE` hoặc đang thực hiện chuyến phải gửi tọa độ GPS về Server với tần suất **3 giây/lần**. Nếu mất tín hiệu GPS quá **30 giây**, hệ thống tự động đưa ra cảnh báo cho Tài xế kiểm tra kết nối mạng. |
