@@ -393,3 +393,28 @@ sequenceDiagram
     APP->>D: Tự động trích xuất hoa hồng (20%) vào Ví tài xế
     C->>APP: Đánh giá sao (1-5 sao) & phản hồi dịch vụ
 ```
+
+---
+
+### 9.2. Chi Tiết Các Sơ Đồ Quy Trình Cốt Lõi & Mô Tả Nghiệp Vụ
+---
+### 9.2.1. Quy trình 1: Tiếp nhận Đặt xe & Thuật toán Ghép chuyến tự động
+---
+flowchart TD
+    A[Khách hàng nhập lộ trình] --> B[Hệ thống tính cước Upfront & ETA]
+    B --> C{Khách hàng xác nhận?}
+    C -- Không --> D[Hủy thao tác]
+    C -- Có --> E[Tạo chuyến đi trạng thái PENDING]
+    E --> F[Quét tài xế rảnh trong bán kính 3km]
+    F --> G{Có tài xế phù hợp?}
+    G -- Có --> H[Gửi thông báo nhận chuyến - Chờ 15s]
+    H --> I{Tài xế phản hồi?}
+    I -- Chấp nhận --> J[Đổi trạng thái chuyến sang ACCEPTED]
+    J --> K[Thông báo cho Khách hàng & Kết thúc tìm kiếm]
+    I -- Từ chối / Timeout --> L[Đưa tài xế vào danh sách bỏ qua tạm thời]
+    L --> F
+    G -- Không --> M{Đã thử lại 3 lần / Quá 120s?}
+    M -- Chưa --> N[Mở rộng bán kính quét lên 5km]
+    N --> F
+    M -- Rồi --> O[Đổi trạng thái chuyến sang FAILED]
+    O --> P[Thông báo cho Khách hàng: Không tìm thấy tài xế]
