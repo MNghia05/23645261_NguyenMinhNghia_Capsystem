@@ -197,76 +197,81 @@ Bảng tổng hợp chi tiết toàn bộ các chức năng hệ thống đượ
 ## 8. Sơ Đồ Use Case Tổng Quát (General Use Case Diagram)
 
 ```mermaid
----
-config:
-  layout: elk
----
 flowchart LR
-    Customer["Khách hàng"]
-    Driver["Tài xế"]
-    Operator["Nhân viên vận hành"]
-    Admin["Quản trị viên"]
-    Payment["Nhà cung cấp thanh toán"]
-    Notify["Nhà cung cấp thông báo"]
+    Customer["👤 Khách hàng"]
+    Driver["🚗 Tài xế"]
+    Operator["🛠️ Nhân viên vận hành"]
+    Admin["👑 Quản trị viên"]
+    Payment["💳 Nhà cung cấp thanh toán"]
+    Notify["🔔 Nhà cung cấp thông báo"]
 
-    subgraph CAB["NỀN TẢNG CAB"]
+    subgraph CAB["NỀN TẢNG CAB SYSTEM"]
         direction TB
 
-        C1(["Đăng ký tài khoản"])
-        C2(["Đăng nhập"])
-        C3(["Cập nhật thông tin cá nhân"])
-        C4(["Nhập điểm đón và điểm đến"])
-        C5(["Lựa chọn loại xe"])
-        C6(["Gửi yêu cầu đặt xe"])
-        C7(["Theo dõi trạng thái chuyến đi"])
-        C8(["Xem tài xế và thời gian dự kiến đến"])
-        C9(["Xem lịch sử chuyến đi"])
-        C10(["Xem số tiền phải trả"])
-        C11(["Thanh toán tiền mặt"])
-        C12(["Thanh toán điện tử"])
-        C13(["Đánh giá tài xế"])
-        C14(["Hủy chuyến"])
+        subgraph Group_Customer ["Khách hàng"]
+            C1(["Đăng ký tài khoản"])
+            C2(["Đăng nhập"])
+            C3(["Cập nhật thông tin cá nhân"])
+            C4(["Nhập điểm đón và điểm đến"])
+            C5(["Lựa chọn loại xe"])
+            C6(["Gửi yêu cầu đặt xe"])
+            C7(["Theo dõi trạng thái chuyến đi"])
+            C8(["Xem tài xế và thời gian dự kiến đến"])
+            C9(["Xem lịch sử chuyến đi"])
+            C10(["Xem số tiền phải trả"])
+            C11(["Thanh toán tiền mặt"])
+            C12(["Thanh toán điện tử"])
+            C13(["Đánh giá tài xế"])
+            C14(["Hủy chuyến"])
+        end
 
-        D1(["Đăng ký tài khoản"])
-        D2(["Đăng nhập"])
-        D3(["Cập nhật hồ sơ"])
-        D4(["Quản lý thông tin phương tiện"])
-        D5(["Cập nhật trạng thái hoạt động"])
-        D6(["Nhận thông báo chuyến mới"])
-        D7(["Chấp nhận chuyến"])
-        D8(["Từ chối chuyến"])
-        D9(["Cập nhật trạng thái: đã đến"])
-        D10(["Cập nhật trạng thái: đã đón khách"])
-        D11(["Cập nhật trạng thái: đang di chuyển"])
-        D12(["Cập nhật trạng thái: hoàn thành"])
-        D13(["Chia sẻ vị trí tài xế"])
+        subgraph Group_Driver ["Tài xế"]
+            D1(["Đăng ký tài khoản"])
+            D2(["Đăng nhập"])
+            D3(["Cập nhật hồ sơ"])
+            D4(["Quản lý thông tin phương tiện"])
+            D5(["Cập nhật trạng thái hoạt động"])
+            D6(["Nhận thông báo chuyến mới"])
+            D7(["Chấp nhận chuyến"])
+            D8(["Từ chối chuyến"])
+            D9(["Cập nhật trạng thái: đã đến"])
+            D10(["Cập nhật trạng thái: đã đón khách"])
+            D11(["Cập nhật trạng thái: đang di chuyển"])
+            D12(["Cập nhật trạng thái: hoàn thành"])
+            D13(["Chia sẻ vị trí tài xế"])
+        end
 
-        O1(["Tạo tài khoản tài xế"])
-        O2(["Quản lý khách hàng"])
-        O3(["Quản lý tài xế"])
-        O4(["Quản lý phương tiện"])
-        O5(["Xem chuyến đang diễn ra"])
-        O6(["Kiểm tra trạng thái tài xế"])
-        O7(["Hỗ trợ xử lý chuyến lỗi"])
-        O8(["Tra cứu lịch sử giao dịch"])
-        O9(["Phân quyền nhân viên"])
-        O10(["Xem báo cáo vận hành"])
-        O11(["Tra cứu nhật ký thao tác"])
+        subgraph Group_Ops ["Vận hành & Admin"]
+            O1(["Tạo tài khoản tài xế"])
+            O2(["Quản lý khách hàng"])
+            O3(["Quản lý tài xế"])
+            O4(["Quản lý phương tiện"])
+            O5(["Xem chuyến đang diễn ra"])
+            O6(["Kiểm tra trạng thái tài xế"])
+            O7(["Hỗ trợ xử lý chuyến lỗi"])
+            O8(["Tra cứu lịch sử giao dịch"])
+            O9(["Phân quyền nhân viên"])
+            O10(["Xem báo cáo vận hành"])
+            O11(["Tra cứu nhật ký thao tác"])
+        end
 
-        S1(["Xác thực người dùng"])
-        S2(["Xác định tài xế phù hợp"])
-        S3(["Ưu tiên tài xế gần và phù hợp"])
-        S4(["Gửi yêu cầu cho tài xế"])
-        S5(["Tìm tài xế thay thế"])
-        S6(["Thông báo không tìm được tài xế"])
-        S7(["Theo dõi vị trí tài xế"])
-        S8(["Tính cước chuyến đi"])
-        S9(["Xử lý thanh toán"])
-        S10(["Xử lý thanh toán thất bại"])
-        S11(["Gửi thông báo đa kênh"])
-        S12(["Ghi nhật ký kiểm toán"])
+        subgraph Group_System ["Xử lý Hệ thống"]
+            S1(["Xác thực người dùng"])
+            S2(["Xác định tài xế phù hợp"])
+            S3(["Ưu tiên tài xế gần và phù hợp"])
+            S4(["Gửi yêu cầu cho tài xế"])
+            S5(["Tìm tài xế thay thế"])
+            S6(["Thông báo không tìm được tài xế"])
+            S7(["Theo dõi vị trí tài xế"])
+            S8(["Tính cước chuyến đi"])
+            S9(["Xử lý thanh toán"])
+            S10(["Xử lý thanh toán thất bại"])
+            S11(["Gửi thông báo đa kênh"])
+            S12(["Ghi nhật ký kiểm toán"])
+        end
     end
 
+    %% Nối Actor Khách hàng
     Customer --- C1
     Customer --- C2
     Customer --- C3
@@ -282,6 +287,7 @@ flowchart LR
     Customer --- C13
     Customer --- C14
 
+    %% Nối Actor Tài xế
     Driver --- D1
     Driver --- D2
     Driver --- D3
@@ -296,6 +302,7 @@ flowchart LR
     Driver --- D12
     Driver --- D13
 
+    %% Nối Actor Nhân viên vận hành
     Operator --- O1
     Operator --- O2
     Operator --- O3
@@ -306,9 +313,11 @@ flowchart LR
     Operator --- O8
     Operator --- O10
 
+    %% Nối Actor Quản trị viên
     Admin --- O9
     Admin --- O11
 
+    %% Quan hệ Include / Extend giữa các Use Case
     C1 -.->|include| S1
     C2 -.->|include| S1
     D1 -.->|include| S1
@@ -339,9 +348,11 @@ flowchart LR
     O9 -.->|include| S12
     O11 -.->|include| S12
 
+    %% Nối Đối tác bên ngoài
     C12 --- Payment
     S11 --- Notify
 
+    %% Định dạng màu sắc
     classDef actor fill:#eef2ff,stroke:#818cf8,stroke-width:2px
     classDef customer fill:#ecfeff,stroke:#22d3ee
     classDef driver fill:#f0fdf4,stroke:#4ade80
