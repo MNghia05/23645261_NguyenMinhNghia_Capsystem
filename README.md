@@ -397,9 +397,14 @@ sequenceDiagram
 ---
 
 ### 9.2. Chi Tiết Các Sơ Đồ Quy Trình Cốt Lõi & Mô Tả Nghiệp Vụ
+
 ---
+
 ### 9.2.1. Quy trình 1: Tiếp nhận Đặt xe & Thuật toán Ghép chuyến tự động
+
 ---
+
+```mermaid
 flowchart TD
     A[Khách hàng nhập lộ trình] --> B[Hệ thống tính cước Upfront & ETA]
     B --> C{Khách hàng xác nhận?}
@@ -418,3 +423,4 @@ flowchart TD
     N --> F
     M -- Rồi --> O[Đổi trạng thái chuyến sang FAILED]
     O --> P[Thông báo cho Khách hàng: Không tìm thấy tài xế]
+```
