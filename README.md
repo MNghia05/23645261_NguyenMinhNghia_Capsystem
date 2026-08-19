@@ -191,3 +191,63 @@ Bảng tổng hợp chi tiết toàn bộ các chức năng hệ thống đượ
 | | **BR-TRK-02** | • **Nút báo động khẩn cấp (SOS):** Cung cấp nút hỗ trợ khẩn cấp trên màn hình ứng dụng Khách hàng và Tài xế.<br>• **Cảnh báo sự cố ưu tiên:** Nổi cảnh báo đỏ/âm thanh trên màn hình giám sát của Vận hành và tự động gửi SMS vị trí tới số điện thoại người thân. |
 | **4. Đánh Giá & Vận Hành**<br>*(Ops & Support)* | **BR-OPS-01** | • **Đăng ký & Tải hồ sơ tài xế:** Tiếp nhận ảnh chụp Căn cước, Bằng lái, Đăng ký xe, Bảo hiểm.<br>• **Thẩm định & Duyệt hồ sơ (Admin Portal):** Cho phép nhân viên Vận hành kiểm tra và duyệt hồ sơ trước khi kích hoạt tài khoản tài xế.<br>• **Tự động khóa tài khoản kém chất lượng:** Chạy tiến trình tự động khóa tài khoản nếu điểm đánh giá trung bình của tài xế rơi xuống dưới $3.0\star$. |
 | | **BR-OPS-02** | • **Đánh giá & Chấm điểm (Rating):** Popup chấm điểm $1-5\star$, chọn lý do nhanh hoặc nhập phản hồi sau chuyến đi.<br>• **Tính điểm trung bình tích lũy:** Cập nhật điểm uy tín trung bình của tài xế tức thì.<br>• **Tự động tạo Ticket CSKH:** Khởi tạo yêu cầu hỗ trợ (Ticket) gán độ ưu tiên cao tới bộ phận CSKH khi nhận đánh giá $1-2\star$. |
+
+```mermaid
+graph LR
+    %% Actors
+    subgraph Actors
+        Rider["👤 Khách hàng"]
+        Driver["🚗 Tài xế"]
+        Ops["🛠️ Nhân viên Vận hành"]
+        CS["🎧 Nhân viên CSKH"]
+        MapExt["🗺️ Hệ thống Bản đồ"]
+        PayExt["💳 Cổng Thanh toán"]
+    end
+
+    %% Use Cases Boundary
+    subgraph CAB_System ["HỆ THỐNG CAB SYSTEM"]
+        UC01("(UC01: Đăng ký / Đăng nhập)")
+        UC02("(UC02: Đăng ký & Upload hồ sơ)")
+        UC03("(UC03: Phê duyệt hồ sơ Tài xế)")
+        UC04("(UC04: Tìm địa điểm & Xem giá)")
+        UC05("(UC05: Tạo yêu cầu đặt xe)")
+        UC06("(UC06: Ghép chuyến tự động)")
+        UC07("(UC07: Nhận / Từ chối chuyến)")
+        UC08("(UC08: Hủy chuyến đi)")
+        UC09("(UC09: Live Tracking GPS)")
+        UC10("(UC10: Cập nhật trạng thái chuyến)")
+        UC11("(UC11: Kích hoạt cảnh báo SOS)")
+        UC12("(UC12: Thanh toán cước phí)")
+        UC13("(UC13: Trích xuất hoa hồng Ví)")
+        UC14("(UC14: Đánh giá & Feedback)")
+        UC15("(UC15: Xử lý Ticket khiếu nại)")
+    end
+
+    %% Connections
+    Rider --> UC01
+    Rider --> UC04
+    Rider --> UC05
+    Rider --> UC08
+    Rider --> UC09
+    Rider --> UC11
+    Rider --> UC12
+    Rider --> UC14
+
+    Driver --> UC01
+    Driver --> UC02
+    Driver --> UC07
+    Driver --> UC08
+    Driver --> UC10
+    Driver --> UC11
+    Driver --> UC13
+
+    Ops --> UC03
+    Ops --> UC09
+    Ops --> UC11
+
+    CS --> UC15
+
+    UC04 -.-> MapExt
+    UC09 -.-> MapExt
+    UC12 -.-> PayExt
+```
