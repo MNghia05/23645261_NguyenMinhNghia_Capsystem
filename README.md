@@ -196,5 +196,150 @@ Bảng tổng hợp chi tiết toàn bộ các chức năng hệ thống đượ
 
 ## 7. Sơ đồ Usecase Diagram
 
+---
+
 <img width="1055" height="891" alt="image" src="https://github.com/user-attachments/assets/217c0ab7-a07a-48f9-aca1-c6a7b2318620" />
 
+---
+
+## 8. Đặc Tả Use Case (Use Case Specifications)
+
+---
+
+### UC01: Đặt Xe Tức Thì
+
+| **Tên Use Case** | **Đặt xe tức thì** |
+| :--- | :--- |
+| **Mô tả sơ lược** | Chức năng giúp Khách hàng đặt xe di chuyển tức thì bằng cách chọn điểm đón/trả và xem trước cước phí cố định. |
+| **Actor chính** | Khách hàng |
+| **Actor phụ** | Dịch vụ Bản đồ (Map API) |
+| **Tiền điều kiện** | Hệ thống hoạt động tốt, Khách hàng đã đăng nhập và thiết bị đã bật GPS. |
+| **Hậu điều kiện** | Hệ thống tạo bản ghi chuyến đi ở trạng thái `PENDING` và gửi thông báo tìm tài xế. |
+| **Dòng sự kiện chính (Main Flow)** | |
+| **Actor** | **System** |
+| 1. Khách hàng chọn chức năng Đặt xe. | 2. Hệ thống gọi Map API tự động định vị vị trí hiện tại làm điểm đón. |
+| 3. Khách hàng nhập vị trí điểm trả và chọn loại xe. | 4. Hệ thống tính toán quãng đường, thời gian (ETA) và hiển thị giá cước cố định (Upfront Price). |
+| 5. Khách hàng chọn phương thức thanh toán và bấm "Xác nhận đặt xe". | 6. Hệ thống kiểm tra điều kiện tài khoản (không có chuyến dở dang). |
+| | 7. Hệ thống khởi tạo chuyến đi `PENDING` và kích hoạt luồng quét tìm tài xế. |
+| **Dòng sự kiện thay thế (Alternate Flow)** | |
+| | 6.1 Hệ thống phát hiện Khách hàng đang có chuyến đi chưa hoàn thành. |
+| 6.1.1 Khách hàng xem thông báo và bấm "Đóng". | |
+| | 6.1.2 Hệ thống trở lại màn hình chính và hủy thao tác đặt xe. |
+| **Dòng sự kiện ngoại lệ (Exception Flow)** | |
+| | 5.1 Hệ thống yêu cầu tạm giữ tiền (Hold money) qua thẻ/ví điện tử nhưng thất bại. |
+| 5.1.1 Khách hàng đổi sang thanh toán Tiền mặt. | |
+| | 5.1.2 Hệ thống cập nhật phương thức thanh toán và tiếp tục bước 6. |
+
+---
+
+### UC02: Tự Động Ghép Chuyến
+
+| **Tên Use Case** | **Tự động ghép chuyến** |
+| :--- | :--- |
+| **Mô tả sơ lược** | Chức năng tự động tìm kiếm, lọc và phân công chuyến đi cho tài xế rảnh gần nhất trong bán kính quy định. |
+| **Actor chính** | Hệ thống (Hệ thống tự động thực hiện) |
+| **Actor phụ** | Tài xế, Nhà cung cấp thông báo (Push Notification) |
+| **Tiền điều kiện** | Chuyến đi vừa được tạo ở trạng thái `PENDING`. |
+| **Hậu điều kiện** | Chuyển trạng thái chuyến đi sang `ACCEPTED` (thành công) hoặc `FAILED` (thất bại). |
+| **Dòng sự kiện chính (Main Flow)** | |
+| **Actor (Tài xế)** | **System** |
+| | 1. Hệ thống quét danh sách Tài xế đang `AVAILABLE` trong bán kính 3km. |
+| | 2. Hệ thống lọc Tài xế đủ số dư ví, cùng loại xe và chọn Tài xế gần nhất. |
+| | 3. Hệ thống gửi thông báo mời nhận chuyến và bật đếm ngược 15s trên máy Tài xế. |
+| 4. Tài xế bấm "Chấp nhận" trong thời gian đếm ngược. | |
+| | 5. Hệ thống khóa chuyến, cập nhật trạng thái chuyến đi sang `ACCEPTED`. |
+| | 6. Hệ thống gửi thông báo kết quả ghép chuyến thành công cho Khách hàng. |
+| **Dòng sự kiện thay thế (Alternate Flow)** | |
+| 4.1 Tài xế bấm "Từ chối" hoặc hết 15s không thao tác. | |
+| | 4.1.1 Hệ thống loại Tài xế đó khỏi lượt quét. |
+| | 4.1.2 Hệ thống tự động lấy Tài xế tiếp theo trong danh sách và trở lại bước 3. |
+| **Dòng sự kiện ngoại lệ (Exception Flow)** | |
+| | 1.1 Hệ thống quét hết bán kính 3km nhưng không có Tài xế nào nhận chuyến. |
+| | 1.1.1 Hệ thống mở rộng bán kính quét lên 5km và quét lại trong 60 giây. |
+| | 1.1.2 Nếu vẫn không có Tài xế nhận, Hệ thống đổi trạng thái chuyến sang `FAILED`. |
+| | 1.1.3 Hệ thống thông báo cho Khách hàng: "Không tìm thấy xe quanh đây, vui lòng thử lại". |
+
+---
+
+### UC03: Tiếp Nhận & Thực Hiện Chuyến Đi
+
+| **Tên Use Case** | **Tiếp nhận & Thực hiện chuyến đi** |
+| :--- | :--- |
+| **Mô tả sơ lược** | Chức năng giúp Tài xế cập nhật tiến trình di chuyển từ lúc đón khách đến khi hoàn thành chuyến đi. |
+| **Actor chính** | Tài xế |
+| **Actor phụ** | Khách hàng |
+| **Tiền điều kiện** | Chuyến đi đang ở trạng thái `ACCEPTED`. |
+| **Hậu điều kiện** | Chuyến đi đổi sang trạng thái `COMPLETED` và kích hoạt luồng thanh toán. |
+| **Dòng sự kiện chính (Main Flow)** | |
+| **Actor (Tài xế)** | **System** |
+| 1. Tài xế lái xe đến điểm đón và bấm "Đã đến điểm đón". | |
+| | 2. Hệ thống cập nhật trạng thái `ARRIVED` và gửi thông báo cho Khách hàng. |
+| 3. Khách hàng lên xe, Tài xế bấm "Bắt đầu chuyến đi". | |
+| | 4. Hệ thống cập nhật trạng thái `IN_PROGRESS` và bắt đầu theo dõi vị trí GPS real-time. |
+| 5. Tài xế chở khách đến điểm trả và bấm "Hoàn thành chuyến đi". | |
+| | 6. Hệ thống cập nhật trạng thái `COMPLETED`, tính toán cước phí cuối cùng và kích hoạt thanh toán. |
+| **Dòng sự kiện thay thế (Alternate Flow)** | |
+| 1.1 Tài xế chờ quá 5 phút tại điểm đón nhưng không thấy Khách hàng. | |
+| 1.2 Tài xế bấm chọn lý do "Khách không đến" và bấm "Hủy chuyến". | |
+| | 1.2.1 Hệ thống xác minh vị trí GPS của Tài xế đang ở đúng điểm đón. |
+| | 1.2.2 Hệ thống đổi trạng thái chuyến sang `CANCELLED_BY_DRIVER` và không phạt Tài xế. |
+| **Dòng sự kiện ngoại lệ (Exception Flow)** | |
+| | 3.1 Hệ thống phát hiện thiết bị Tài xế bị mất kết nối GPS/Internet giữa chừng. |
+| | 3.1.1 Hệ thống lưu tạm dữ liệu hành trình vào bộ nhớ máy Tài xế. |
+| | 3.1.2 Khi có mạng lại, Hệ thống tự động đồng bộ vị trí và tiếp tục bước 4. |
+
+---
+
+### UC04: Xử Lý Thanh Toán & Hoàn Tất Chuyến
+
+| **Tên Use Case** | **Xử lý thanh toán & Hoàn tất chuyến** |
+| :--- | :--- |
+| **Mô tả sơ lược** | Chức năng tự động tính toán giá cước cuối cùng, thu tiền cước và khấu trừ hoa hồng vào Ví tài xế. |
+| **Actor chính** | Hệ thống (Hệ thống tự động xử lý) |
+| **Actor phụ** | Cổng thanh toán (External Payment Provider), Tài xế, Khách hàng |
+| **Tiền điều kiện** | Chuyến đi vừa đổi sang trạng thái `COMPLETED`. |
+| **Hậu điều kiện** | Khách hàng hoàn tất thanh toán, Ví tài xế bị trừ % hoa hồng chiết khấu. |
+| **Dòng sự kiện chính (Main Flow)** | |
+| **Actor** | **System** |
+| | 1. Hệ thống kiểm tra lộ trình thực tế qua GPS và tính cước phí cuối cùng. |
+| | 2. Hệ thống thực hiện trừ tiền qua Cổng thanh toán (nếu chọn Thanh toán điện tử). |
+| | 3. Hệ thống tính tiền hoa hồng chiết khấu (20%) và tự động trừ vào Ví tài xế. |
+| | 4. Hệ thống kiểm tra số dư Ví tài xế còn lại > 100.000đ. |
+| | 5. Hệ thống gửi hóa đơn điện tử cho Khách hàng và thông báo số tiền nhận cho Tài xế. |
+| **Dòng sự kiện thay thế (Alternate Flow)** | |
+| | 2.1 Khách hàng chọn hình thức thanh toán "Tiền mặt". |
+| | 2.1.1 Hệ thống hiển thị số tiền mặt cần thu trên màn hình ứng dụng của Tài xế. |
+| 2.1.2 Tài xế thu tiền mặt từ khách và bấm "Đã nhận tiền". | |
+| | 2.1.3 Hệ thống chuyển sang bước 3. |
+| **Dòng sự kiện ngoại lệ (Exception Flow)** | |
+| | 2.2 Cổng thanh toán trả về lỗi (Thẻ hết hạn/Không đủ tiền). |
+| | 2.2.1 Hệ thống tự động đổi phương thức thanh toán chuyến đi sang "Tiền mặt". |
+| | 2.2.2 Hệ thống thông báo cho Tài xế: "Thanh toán thẻ bị lỗi, vui lòng thu tiền mặt từ Khách". |
+
+---
+
+### UC05: Duyệt Hồ Sơ Tài Xế
+
+| **Tên Use Case** | **Duyệt hồ sơ tài xế** |
+| :--- | :--- |
+| **Mô tả sơ lược** | Chức năng giúp Nhân viên vận hành thẩm định giấy tờ đăng ký của Tài xế và kích hoạt tài khoản. |
+| **Actor chính** | Nhân viên vận hành |
+| **Actor phụ** | Tài xế |
+| **Tiền điều kiện** | Tài xế đã đăng ký và tải lên đầy đủ hình ảnh CCCD, Bằng lái, Đăng ký xe. |
+| **Hậu điều kiện** | Tài khoản Tài xế được chuyển sang trạng thái `ACTIVE` (được phép nhận chuyến). |
+| **Dòng sự kiện chính (Main Flow)** | |
+| **Actor (Nhân viên vận hành)** | **System** |
+| 1. Nhân viên chọn danh sách "Hồ sơ tài xế chờ duyệt". | 2. Hệ thống hiển thị danh sách các hồ sơ mới đăng ký. |
+| 3. Nhân viên mở 1 hồ sơ và kiểm tra tính hợp lệ của ảnh chụp CCCD, Bằng lái, Giấy xe. | 4. Hệ thống hiển thị chi tiết hình ảnh và thông tin nhập liệu. |
+| 5. Nhân viên xác nhận giấy tờ hợp lệ và bấm "Phê duyệt". | |
+| | 6. Hệ thống đổi trạng thái tài khoản Tài xế sang `ACTIVE`. |
+| | 7. Hệ thống tự động khởi tạo Ví tài xế và gửi thông báo kích hoạt thành công. |
+| **Dòng sự kiện thay thế (Alternate Flow)** | |
+| 5.1 Nhân viên phát hiện giấy tờ bị mờ hoặc hết hạn. | |
+| 5.2 Nhân viên bấm "Từ chối" và tích chọn lý do (ví dụ: "Bằng lái hết hạn"). | |
+| | 5.2.1 Hệ thống đổi trạng thái hồ sơ sang `REJECTED`. |
+| | 5.2.2 Hệ thống gửi thông báo yêu cầu Tài xế chụp lại giấy tờ bị lỗi. |
+| **Dòng sự kiện ngoại lệ (Exception Flow)** | |
+| | 6.1 Hệ thống bị lỗi kết nối cơ sở dữ liệu khi đang lưu trạng thái. |
+| | 6.1.1 Hệ thống hiển thị thông báo "Lỗi lưu dữ liệu, vui lòng thử lại". |
+| 6.1.2 Nhân viên bấm "Thử lại" để thực hiện lại bước 5. | |
