@@ -5,8 +5,6 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 
 **CAB System** ra đời như một giải pháp công nghệ toàn diện nhằm tự động hóa hoàn toàn quy trình vận hành. Nhờ thuật toán ghép chuyến thông minh theo bán kính định vị GPS, hệ thống kết nối khách hàng với tài xế gần nhất trong chưa đầy 30 giây, giúp tối ưu hóa quãng đường di chuyển và cắt giảm tối đa chi phí trung gian. Việc minh bạch hóa giá cước cố định (Upfront Pricing), tích hợp đa dạng cổng thanh toán điện tử, tự động hóa trích xuất hoa hồng vào Ví tài xế và cung cấp công cụ theo dõi hành trình thời gian thực không chỉ nâng cao trải nghiệm người dùng mà còn đảm bảo dòng tiền được quản lý chính xác, minh bạch. Đây là nền tảng công nghệ hiện đại, có khả năng mở rộng linh hoạt, giúp doanh nghiệp tối ưu hóa nguồn lực và bứt phá lợi thế cạnh tranh trên thị trường.
 
-7. vẽ usecase diagram
-8. đặc tả
 9. phân tích quy trình nghiệp vụ 
 10. phân tích quy tắc nghiệp vụ (business rules)
     
@@ -343,3 +341,55 @@ Bảng tổng hợp chi tiết toàn bộ các chức năng hệ thống đượ
 | | 6.1 Hệ thống bị lỗi kết nối cơ sở dữ liệu khi đang lưu trạng thái. |
 | | 6.1.1 Hệ thống hiển thị thông báo "Lỗi lưu dữ liệu, vui lòng thử lại". |
 | 6.1.2 Nhân viên bấm "Thử lại" để thực hiện lại bước 5. | |
+
+---
+
+## 9. Phân Tích Quy Trình Nghiệp Vụ (Business Process Analysis)
+
+Quy trình nghiệp vụ của CAB System được cấu trúc thành các luồng vận hành khép kín, đảm bảo tự động hóa tối đa từ khâu tiếp nhận yêu cầu, điều phối tài xế cho đến khi hoàn tất giao dịch thanh toán và hỗ trợ sau chuyến đi.
+
+### 9.1. Sơ Đồ Quy Trình Tổng Thể End-to-End (Cross-Functional Sequence Diagram)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Khách hàng
+    participant APP as CAB System (Server/App)
+    actor D as Tài xế
+    participant PAY as Cổng Thanh Toán
+    actor OPS as Nhân viên Vận hành
+
+    %% Phase 1: Booking & Matching
+    Note over C, APP: 1. Giai đoạn Đặt xe & Ghép chuyến
+    C->>APP: Nhập điểm đón/trả, chọn loại xe
+    APP->>C: Tính cước cố định (Upfront Price) & hiển thị ETA
+    C->>APP: Xác nhận đặt xe
+    APP->>APP: Quét tài xế rảnh (AVAILABLE) trong bán kính 3km
+    APP->>D: Gửi thông báo mời nhận chuyến (Đếm ngược 15s)
+    alt Tài xế chấp nhận
+        D->>APP: Bấm "Chấp nhận"
+        APP->>C: Thông báo thông tin tài xế, biển số & ETA
+    else Tài xế từ chối / Hết thời gian
+        APP->>APP: Chuyển yêu cầu sang tài xế tiếp theo
+    end
+
+    %% Phase 2: Trip Execution
+    Note over C, D: 2. Giai đoạn Thực hiện chuyến đi
+    D->>APP: Cập nhật "Đã đến điểm đón"
+    APP->>C: Thông báo tài xế đã tới điểm hẹn
+    D->>APP: Cập nhật "Bắt đầu chuyến đi"
+    APP->>APP: Giám sát & Stream tọa độ GPS thời gian thực
+    D->>APP: Cập nhật "Hoàn thành chuyến đi"
+
+    %% Phase 3: Payment & Rating
+    Note over C, PAY: 3. Giai đoạn Thanh toán & Đánh giá
+    alt Thanh toán Điện tử (Ví/Thẻ)
+        APP->>PAY: Yêu cầu trừ tiền (Capture payment)
+        PAY-->>APP: Báo thanh toán thành công
+    else Thanh toán Tiền mặt
+        D->>C: Yêu cầu thu tiền mặt theo ứng dụng
+        D->>APP: Xác nhận đã nhận đủ tiền mặt
+    end
+    APP->>D: Tự động trích xuất hoa hồng (20%) vào Ví tài xế
+    C->>APP: Đánh giá sao (1-5 sao) & phản hồi dịch vụ
+```
