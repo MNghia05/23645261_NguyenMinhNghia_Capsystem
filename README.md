@@ -25,7 +25,7 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 
 ---
 
-3.	Stalkholder
+## 3. Các Bên Liên Quan (Stakeholders)
 ## Các Bên Liên Quan (Stakeholders)
 
 | Stakeholder | Vai Trò |
