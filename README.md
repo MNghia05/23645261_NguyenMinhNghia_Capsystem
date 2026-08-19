@@ -72,7 +72,7 @@ quadrantChart
 
 ---
 
-### 4.4. Sơ Đồ Tương Tác Giữa Các Business Units
+### Sơ Đồ Tương Tác Giữa Các Business Units
 
 ```mermaid
 graph LR
