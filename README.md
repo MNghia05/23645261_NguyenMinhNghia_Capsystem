@@ -193,130 +193,92 @@ Bảng tổng hợp chi tiết toàn bộ các chức năng hệ thống đượ
 | | **BR-OPS-02** | • **Đánh giá & Chấm điểm (Rating):** Popup chấm điểm $1-5\star$, chọn lý do nhanh hoặc nhập phản hồi sau chuyến đi.<br>• **Tính điểm trung bình tích lũy:** Cập nhật điểm uy tín trung bình của tài xế tức thì.<br>• **Tự động tạo Ticket CSKH:** Khởi tạo yêu cầu hỗ trợ (Ticket) gán độ ưu tiên cao tới bộ phận CSKH khi nhận đánh giá $1-2\star$. |
 
 ```mermaid
----
-config:
-  layout: elk
----
 flowchart LR
-    Customer@{ shape: text, label: "👤 Khách hàng" }
-    Driver@{ shape: text, label: "🚗 Tài xế" }
-    Operator@{ shape: text, label: "👨‍💼 Nhân viên vận hành" }
-    Admin@{ shape: text, label: "🔑 Quản trị viên" }
-    Payment@{ shape: text, label: "💳 Cổng thanh toán" }
-    Notify@{ shape: text, label: "📢 Nhà cung cấp thông báo" }
+    Customer["👤 Khách hàng"]
+    Driver["🚗 Tài xế"]
+    Operator["👨‍💼 Nhân viên vận hành"]
+    Admin["🔑 Quản trị viên"]
+    Payment["💳 Cổng thanh toán"]
+    Notify["📢 Nhà cung cấp thông báo"]
 
     subgraph CAB["HỆ THỐNG CAB"]
         direction TB
 
-        subgraph CustomerArea["Khách hàng"]
-            direction LR
-            C1(["Đăng ký / đăng nhập"])
-            C2(["Quản lý hồ sơ"])
-            C3(["Đặt xe"])
-            C4(["Theo dõi chuyến đi"])
-            C5(["Xem lịch sử chuyến"])
-            C6(["Thanh toán"])
-            C7(["Đánh giá tài xế"])
-            C8(["Hủy chuyến"])
-        end
+        %% Chức năng Khách hàng
+        C1(["C1: Đăng ký / đăng nhập"])
+        C2(["C2: Quản lý hồ sơ"])
+        C3(["C3: Đặt xe"])
+        C4(["C4: Theo dõi chuyến đi"])
+        C5(["C5: Xem lịch sử chuyến"])
+        C6(["C6: Thanh toán"])
+        C7(["C7: Đánh giá tài xế"])
+        C8(["C8: Hủy chuyến"])
 
-        subgraph DriverArea["Tài xế"]
-            direction LR
-            D1(["Quản lý hồ sơ và phương tiện"])
-            D2(["Cập nhật trạng thái hoạt động"])
-            D3(["Nhận yêu cầu chuyến"])
-            D4(["Chấp nhận / từ chối chuyến"])
-            D5(["Cập nhật trạng thái chuyến"])
-            D6(["Cập nhật vị trí"])
-        end
+        %% Chức năng Tài xế
+        D1(["D1: Quản lý hồ sơ & xe"])
+        D2(["D2: Cập nhật trạng thái"])
+        D3(["D3: Nhận yêu cầu chuyến"])
+        D4(["D4: Chấp nhận / từ chối"])
+        D5(["D5: Cập nhật chuyến đi"])
+        D6(["D6: Cập nhật vị trí"])
 
-        subgraph OperationArea["Vận hành và quản trị"]
-            direction LR
-            O1(["Tạo tài khoản tài xế"])
-            O2(["Quản lý khách hàng, tài xế, phương tiện"])
-            O3(["Theo dõi chuyến đang diễn ra"])
-            O4(["Kiểm tra trạng thái tài xế"])
-            O5(["Xử lý chuyến bị lỗi"])
-            O6(["Tra cứu giao dịch"])
-            O7(["Phân quyền nhân viên"])
-            O8(["Xem báo cáo"])
-            O9(["Tra cứu nhật ký thao tác"])
-        end
+        %% Chức năng Vận hành & Admin
+        O1(["O1: Tạo tài khoản tài xế"])
+        O2(["O2: Quản lý dữ liệu hệ thống"])
+        O3(["O3: Theo dõi chuyến đang đi"])
+        O4(["O4: Kiểm tra trạng thái tài xế"])
+        O5(["O5: Xử lý chuyến lỗi"])
+        O6(["O6: Tra cứu giao dịch"])
+        O7(["O7: Phân quyền nhân viên"])
+        O8(["O8: Xem báo cáo"])
+        O9(["O9: Nhật ký thao tác"])
 
-        subgraph CoreArea["Nghiệp vụ nền tảng"]
-            direction LR
-            S1(["Xác thực và phân quyền"])
-            S2(["Tìm tài xế phù hợp"])
-            S3(["Ưu tiên tài xế gần khách"])
-            S4(["Gửi yêu cầu cho tài xế"])
-            S5(["Tìm tài xế thay thế"])
-            S6(["Thông báo không tìm được tài xế"])
-            S7(["Theo dõi vị trí và dự kiến thời gian đến"])
-            S8(["Tính cước"])
-            S9(["Xử lý thanh toán"])
-            S10(["Xử lý thanh toán thất bại"])
-            S11(["Gửi thông báo đa kênh"])
-            S12(["Ghi nhật ký kiểm toán"])
-        end
+        %% Chức năng Nền tảng
+        S1(["S1: Xác thực & phân quyền"])
+        S2(["S2: Tìm tài xế phù hợp"])
+        S3(["S3: Ưu tiên tài xế gần"])
+        S4(["S4: Gửi yêu cầu chuyến"])
+        S5(["S5: Tìm tài xế thay thế"])
+        S6(["S6: Thông báo không tìm thấy"])
+        S7(["S7: Theo dõi vị trí & ETA"])
+        S8(["S8: Tính cước chuyến đi"])
+        S9(["S9: Xử lý thanh toán"])
+        S10(["S10: Thanh toán thất bại"])
+        S11(["S11: Gửi thông báo đa kênh"])
+        S12(["S12: Ghi nhật ký kiểm toán"])
     end
 
-    Customer --- C1
-    Customer --- C2
-    Customer --- C3
-    Customer --- C4
-    Customer --- C5
-    Customer --- C6
-    Customer --- C7
-    Customer --- C8
+    %% Nối trực tiếp Actor vào từng nút (Không qua khung trung gian)
+    Customer --- C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8
+    Driver --- D1 & D2 & D3 & D4 & D5 & D6
+    Operator --- O1 & O2 & O3 & O4 & O5 & O6 & O8
+    Admin --- O7 & O9
 
-    Driver --- D1
-    Driver --- D2
-    Driver --- D3
-    Driver --- D4
-    Driver --- D5
-    Driver --- D6
-
-    Operator --- O1
-    Operator --- O2
-    Operator --- O3
-    Operator --- O4
-    Operator --- O5
-    Operator --- O6
-    Operator --- O8
-
-    Admin --- O7
-    Admin --- O9
-
+    %% Quan hệ Include / Extend
     C1 -.->|include| S1
-    C3 -.->|include| S2
-    S2 -.->|include| S3
-    S2 -.->|include| S4
+    C3 -.->|include| S2 & S7 & S11
+    S2 -.->|include| S3 & S4
     S4 -.->|extend| S5
     S5 -.->|extend| S6
-    C3 -.->|include| S7
     D6 -.->|include| S7
-    C6 -.->|include| S8
-    C6 -.->|include| S9
+    C6 -.->|include| S8 & S9
     S9 -.->|extend| S10
-    C3 -.->|include| S11
     D3 -.->|include| S11
     D5 -.->|include| S11
-    O1 -.->|include| S1
-    O7 -.->|include| S1
-    O2 -.->|include| S12
-    O5 -.->|include| S12
-    O7 -.->|include| S12
-    O9 -.->|include| S12
+    O1 & O7 -.->|include| S1
+    O2 & O5 & O7 & O9 -.->|include| S12
 
+    %% Nối đối tác bên ngoài
     C6 --- Payment
     S11 --- Notify
 
-    classDef actor fill:none,stroke:none,font-size:16px,font-weight:bold
-    classDef customer fill:#ecfeff,stroke:#22d3ee,stroke-width:1.5px
-    classDef driver fill:#f0fdf4,stroke:#4ade80,stroke-width:1.5px
-    classDef operation fill:#fff7ed,stroke:#fb923c,stroke-width:1.5px
-    classDef core fill:#f5f3ff,stroke:#a78bfa,stroke-width:1.5px
-    classDef external fill:none,stroke:none,font-size:14px
+    %% Màu sắc định dạng
+    classDef actor fill:#eef2ff,stroke:#6366f1,stroke-width:2px
+    classDef customer fill:#ecfeff,stroke:#06b6d4,stroke-width:1.5px
+    classDef driver fill:#f0fdf4,stroke:#22c55e,stroke-width:1.5px
+    classDef operation fill:#fff7ed,stroke:#f97316,stroke-width:1.5px
+    classDef core fill:#f5f3ff,stroke:#8b5cf6,stroke-width:1.5px
+    classDef external fill:#fdf4ff,stroke:#d946ef,stroke-width:2px
 
     class Customer,Driver,Operator,Admin actor
     class Payment,Notify external
@@ -324,10 +286,4 @@ flowchart LR
     class D1,D2,D3,D4,D5,D6 driver
     class O1,O2,O3,O4,O5,O6,O7,O8,O9 operation
     class S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12 core
-
-    style CAB fill:#fff8df,stroke:#6b6250,stroke-width:2px
-    style CustomerArea fill:#f0fbff,stroke:#22d3ee,stroke-width:1.5px
-    style DriverArea fill:#f2fcf4,stroke:#4ade80,stroke-width:1.5px
-    style OperationArea fill:#fff8ef,stroke:#fb923c,stroke-width:1.5px
-    style CoreArea fill:#f8f6ff,stroke:#a78bfa,stroke-width:1.5px
 ```
