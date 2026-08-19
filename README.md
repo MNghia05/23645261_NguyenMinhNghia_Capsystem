@@ -424,3 +424,49 @@ flowchart TD
     M -- Rồi --> O[Đổi trạng thái chuyến sang FAILED]
     O --> P[Thông báo cho Khách hàng: Không tìm thấy tài xế]
 ```
+
+---
+
+### 9.2.2. Quy trình 2: Thực hiện chuyến đi & Định vị thời gian thực
+
+---
+
+```mermaid
+flowchart TD
+    A[Tài xế di chuyển tới điểm đón] --> B[Tài xế bấm Đã đến điểm đón]
+    B --> C[Hệ thống đổi trạng thái ARRIVED & Bắn Push Noti cho Khách]
+    C --> D{Khách lên xe?}
+    D -- Có --> E[Tài xế bấm Bắt đầu di chuyển]
+    E --> F[Hệ thống đổi trạng thái IN_PROGRESS]
+    F --> G[Truyền tọa độ GPS thời gian thực 3s/lần]
+    G --> H[Tài xế chở khách đến điểm trả]
+    H --> I[Tài xế bấm Hoàn thành chuyến đi]
+    I --> J[Hệ thống đổi trạng thái COMPLETED & Chuyển sang luồng Thanh toán]
+    D -- Khách không đến quá 5 phút --> K{Tài xế bấm Hủy chuyến}
+    K --> L{Hệ thống kiểm tra GPS Tài xế tại điểm đón?}
+    L -- Đúng vị trí --> M[Đổi trạng thái CANCELLED_BY_DRIVER - Không phạt]
+    L -- Sai vị trí --> N[Phạt tài xế theo quy tắc hủy chuyến]
+```
+
+---
+
+### 9.2.3. Quy trình 3: Xử lý Thanh toán & Khấu trừ Hoa hồng
+
+---
+
+```mermaid
+flowchart TD
+    A[Chuyến đi chuyển trạng thái COMPLETED] --> B{Phương thức thanh toán?}
+    B -- Tiền mặt --> C[Hiển thị số tiền cần thu trên app Tài xế]
+    C --> D[Khách đưa tiền mặt -> Tài xế bấm Đã nhận tiền]
+    D --> G[Khấu trừ 20% chiết khấu vào Ví tài xế]
+    B -- Thanh toán Điện tử --> E[Hệ thống gửi yêu cầu trừ tiền tới Cổng thanh toán]
+    E --> F{Giao dịch thành công?}
+    F -- Có --> G
+    F -- Thất bại --> H[Hệ thống phát thông báo lỗi thanh toán thẻ]
+    H --> I[Tự động chuyển hình thức thanh toán sang Tiền mặt]
+    I --> C
+    G --> J{Số dư Ví tài xế còn lại >= 0 VNĐ?}
+    J -- Có --> K[Hoàn tất chuyến đi]
+    J -- Không --> L[Tự động chuyển trạng thái Tài xế về OFFLINE & Yêu cầu nạp tiền]
+```
