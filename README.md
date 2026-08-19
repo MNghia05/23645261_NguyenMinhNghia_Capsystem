@@ -12,7 +12,7 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
     
 ---
 
-## 2. Các Tác Nhân Của Hệ Thống (System Actors)
+## Các Tác Nhân Của Hệ Thống (System Actors)
 
 | Tác nhân | Loại | Mô tả vai trò |
 | :--- | :--- | :--- |
@@ -25,7 +25,7 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 
 ---
 
-## 3. Các Bên Liên Quan (Stakeholders)
+## 2. Các Bên Liên Quan (Stakeholders)
 ## Các Bên Liên Quan (Stakeholders)
 
 | Stakeholder | Vai Trò |
@@ -61,7 +61,7 @@ quadrantChart
     Nhà Cung Cấp Thông Báo: [0.25, 0.35]
 
 ```
-## 4. Đơn Vị Nghiệp Vụ (Business Units) & Vai Trò Trong Hệ Thống
+## 3. Đơn Vị Nghiệp Vụ (Business Units) & Vai Trò Trong Hệ Thống
 
 | Business Unit | Chức năng chính | Phạm vi Dữ liệu & Công cụ | Stakeholders liên quan |
 | :--- | :--- | :--- | :--- |
@@ -88,13 +88,13 @@ graph LR
     style Ops fill:#f5f3ff,stroke:#a78bfa,stroke-width:2px
     style CS fill:#eef2ff,stroke:#818cf8,stroke-width:2px
 ```
-## 5. Phạm Vi Dự Án & Lộ Trình Triển Khai 7 Tuần (MVP Scope & Roadmap)
+## 4. Phạm Vi Dự Án & Lộ Trình Triển Khai 7 Tuần (MVP Scope & Roadmap)
 
 Để đưa **CAB System** vào hoạt động thực tế đúng hạn trong **7 tuần**, dự án áp dụng chiến lược **MVP (Minimum Viable Product)**: tập trung xây dựng luồng nghiệp vụ cốt lõi (Đặt xe - Ghép chuyến - Theo dõi - Thanh toán) và hoãn lại các tính năng nâng cao sang giai đoạn 2.
 
 ---
 
-### 5.1. Bảng Tóm Tắt Phạm Vi (In-Scope vs. Out-of-Scope)
+### 4.1. Bảng Tóm Tắt Phạm Vi (In-Scope vs. Out-of-Scope)
 
 | Hạng mục | Trong phạm vi MVP (7 tuần) | Giai đoạn 2 (Out-of-Scope) |
 | :--- | :--- | :--- |
@@ -106,7 +106,7 @@ graph LR
 
 ---
 
-### 5.2. Lộ Trình Triển Khai Chi Tiết Trong 7 Tuần (7-Week Roadmap)
+### 4.2. Lộ Trình Triển Khai Chi Tiết Trong 7 Tuần (7-Week Roadmap)
 
 ```mermaid
 gantt
@@ -129,11 +129,11 @@ gantt
     section Tuần 7
     Deployment (UAT, Fix bugs, Go-Live Production) :w7, after w6, 7d
 ```
-## 6. Yêu Cầu Nghiệp Vụ (Business Requirements - BRD)
+## 5. Yêu Cầu Nghiệp Vụ (Business Requirements - BRD)
 
 ---
 
-### 6.1. Nhóm Yêu Cầu: Đặt Xe & Điều Phối Chuyến Đi (Booking & Matching)
+### 5.1. Nhóm Yêu Cầu: Đặt Xe & Điều Phối Chuyến Đi (Booking & Matching)
 
 | Mã BR | Tên Yêu Cầu Nghiệp Vụ | Mô Tả Nghiệp Vụ & Quy Tắc Kinh Doanh | Mục Tiêu Kinh Doanh / KPI |
 | :--- | :--- | :--- | :--- |
@@ -143,7 +143,7 @@ gantt
 
 ---
 
-### 6.2. Nhóm Yêu Cầu: Giá Cước & Thanh Toán (Pricing & Settlement)
+### 5.2. Nhóm Yêu Cầu: Giá Cước & Thanh Toán (Pricing & Settlement)
 
 | Mã BR | Tên Yêu Cầu Nghiệp Vụ | Mô Tả Nghiệp Vụ & Quy Tắc Kinh Doanh | Mục Tiêu Kinh Doanh / KPI |
 | :--- | :--- | :--- | :--- |
@@ -153,7 +153,7 @@ gantt
 
 ---
 
-### 6.3. Nhóm Yêu Cầu: Giám Sát Hành Trình & An Toàn (Tracking & Safety)
+### 5.3. Nhóm Yêu Cầu: Giám Sát Hành Trình & An Toàn (Tracking & Safety)
 
 | Mã BR | Tên Yêu Cầu Nghiệp Vụ | Mô Tả Nghiệp Vụ & Quy Tắc Kinh Doanh | Mục Tiêu Kinh Doanh / KPI |
 | :--- | :--- | :--- | :--- |
@@ -162,7 +162,7 @@ gantt
 
 ---
 
-### 6.4. Nhóm Yêu Cầu: Đánh Giá & Vận Hành Khách Hàng (Customer Experience & Ops)
+### 5.4. Nhóm Yêu Cầu: Đánh Giá & Vận Hành Khách Hàng (Customer Experience & Ops)
 
 | Mã BR | Tên Yêu Cầu Nghiệp Vụ | Mô Tả Nghiệp Vụ & Quy Tắc Kinh Doanh | Mục Tiêu Kinh Doanh / KPI |
 | :--- | :--- | :--- | :--- |
@@ -171,7 +171,7 @@ gantt
 
 ---
 
-## 7. Phân Rã Chi Tiết Yêu Cầu Chức Năng (Functional Requirements Breakdown)
+## 6. Phân Rã Chi Tiết Yêu Cầu Chức Năng (Functional Requirements Breakdown)
 
 ---
 
