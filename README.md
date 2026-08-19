@@ -193,52 +193,170 @@ Bảng tổng hợp chi tiết toàn bộ các chức năng hệ thống đượ
 | | **BR-OPS-02** | • **Đánh giá & Chấm điểm (Rating):** Popup chấm điểm $1-5\star$, chọn lý do nhanh hoặc nhập phản hồi sau chuyến đi.<br>• **Tính điểm trung bình tích lũy:** Cập nhật điểm uy tín trung bình của tài xế tức thì.<br>• **Tự động tạo Ticket CSKH:** Khởi tạo yêu cầu hỗ trợ (Ticket) gán độ ưu tiên cao tới bộ phận CSKH khi nhận đánh giá $1-2\star$. |
 
 ```mermaid
+---
+config:
+  layout: elk
+---
 flowchart LR
-    Customer["👤 Khách hàng"]
-    Driver["🚗 Tài xế"]
-    Operator["🛠️ Vận hành"]
-    Admin["👑 Admin"]
+    Customer["Khách hàng"]
+    Driver["Tài xế"]
+    Operator["Nhân viên vận hành"]
+    Admin["Quản trị viên"]
+    Payment["Nhà cung cấp thanh toán"]
+    Notify["Nhà cung cấp thông báo"]
 
-    subgraph CAB["NỀN TẢNG CAB SYSTEM"]
+    subgraph CAB["NỀN TẢNG CAB"]
         direction TB
 
-        %% Chức năng chính Khách hàng
-        C_Main(["Gửi yêu cầu đặt xe"])
-        C_Acc(["Quản lý tài khoản / Đăng nhập"])
-        C_Pay(["Thanh toán & Hủy chuyến"])
+        subgraph CustomerUseCases["Chức năng khách hàng"]
+            C1(["Đăng ký tài khoản"])
+            C2(["Đăng nhập"])
+            C3(["Cập nhật thông tin cá nhân"])
+            C4(["Nhập điểm đón và điểm đến"])
+            C5(["Lựa chọn loại xe"])
+            C6(["Gửi yêu cầu đặt xe"])
+            C7(["Theo dõi trạng thái chuyến đi"])
+            C8(["Xem tài xế và thời gian dự kiến đến"])
+            C9(["Xem lịch sử chuyến đi"])
+            C10(["Xem số tiền phải trả"])
+            C11(["Thanh toán tiền mặt"])
+            C12(["Thanh toán điện tử"])
+            C13(["Đánh giá tài xế"])
+            C14(["Hủy chuyến"])
+        end
 
-        %% Chức năng chính Tài xế
-        D_Main(["Xử lý chuyến đi (Đón/Trả)"])
-        D_Acc(["Đăng ký / Cập nhật hồ sơ"])
+        subgraph DriverUseCases["Chức năng tài xế"]
+            D1(["Đăng ký tài khoản"])
+            D2(["Đăng nhập"])
+            D3(["Cập nhật hồ sơ"])
+            D4(["Quản lý thông tin phương tiện"])
+            D5(["Cập nhật trạng thái hoạt động"])
+            D6(["Nhận thông báo chuyến mới"])
+            D7(["Chấp nhận chuyến"])
+            D8(["Từ chối chuyến"])
+            D9(["Cập nhật trạng thái: đã đến"])
+            D10(["Cập nhật trạng thái: đã đón khách"])
+            D11(["Cập nhật trạng thái: đang di chuyển"])
+            D12(["Cập nhật trạng thái: hoàn thành"])
+            D13(["Chia sẻ vị trí tài xế"])
+        end
 
-        %% Chức năng Vận hành
-        O_Main(["Quản lý Vận hành & Xử lý lỗi"])
-        
-        %% Chức năng Admin
-        A_Main(["Phân quyền & Kiểm toán"])
+        subgraph OperationsUseCases["Chức năng vận hành và quản trị"]
+            O1(["Tạo tài khoản tài xế"])
+            O2(["Quản lý khách hàng"])
+            O3(["Quản lý tài xế"])
+            O4(["Quản lý phương tiện"])
+            O5(["Xem chuyến đang diễn ra"])
+            O6(["Kiểm tra trạng thái tài xế"])
+            O7(["Hỗ trợ xử lý chuyến lỗi"])
+            O8(["Tra cứu lịch sử giao dịch"])
+            O9(["Phân quyền nhân viên"])
+            O10(["Xem báo cáo vận hành"])
+            O11(["Tra cứu nhật ký thao tác"])
+        end
 
-        %% Processing Ngầm
-        S1(["Xác thực S1"])
-        S2(["Xác định tài xế S2"])
-        S8(["Tính cước S8"])
-        S9(["Thanh toán S9"])
+        subgraph SystemUseCases["Chức năng hệ thống"]
+            S1(["Xác thực người dùng"])
+            S2(["Xác định tài xế phù hợp"])
+            S3(["Ưu tiên tài xế gần và phù hợp"])
+            S4(["Gửi yêu cầu cho tài xế"])
+            S5(["Tìm tài xế thay thế"])
+            S6(["Thông báo không tìm được tài xế"])
+            S7(["Theo dõi vị trí tài xế"])
+            S8(["Tính cước chuyến đi"])
+            S9(["Xử lý thanh toán"])
+            S10(["Xử lý thanh toán thất bại"])
+            S11(["Gửi thông báo đa kênh"])
+            S12(["Ghi nhật ký kiểm toán"])
+        end
     end
 
-    %% Tương tác chính gọn gàng
-    Customer --- C_Acc
-    Customer --- C_Main
-    Customer --- C_Pay
+    Customer --- C1
+    Customer --- C2
+    Customer --- C3
+    Customer --- C4
+    Customer --- C5
+    Customer --- C6
+    Customer --- C7
+    Customer --- C8
+    Customer --- C9
+    Customer --- C10
+    Customer --- C11
+    Customer --- C12
+    Customer --- C13
+    Customer --- C14
 
-    Driver --- D_Acc
-    Driver --- D_Main
+    Driver --- D1
+    Driver --- D2
+    Driver --- D3
+    Driver --- D4
+    Driver --- D5
+    Driver --- D6
+    Driver --- D7
+    Driver --- D8
+    Driver --- D9
+    Driver --- D10
+    Driver --- D11
+    Driver --- D12
+    Driver --- D13
 
-    Operator --- O_Main
-    Admin --- A_Main
+    Operator --- O1
+    Operator --- O2
+    Operator --- O3
+    Operator --- O4
+    Operator --- O5
+    Operator --- O6
+    Operator --- O7
+    Operator --- O8
+    Operator --- O10
 
-    %% Luồng hệ thống tự gọi ngầm (Include / Extend)
-    C_Acc -.->|include| S1
-    D_Acc -.->|include| S1
-    C_Main -.->|include| S2
-    C_Pay -.->|include| S8
-    C_Pay -.->|include| S9
+    Admin --- O9
+    Admin --- O11
+
+    C1 -.->|include| S1
+    C2 -.->|include| S1
+    D1 -.->|include| S1
+    D2 -.->|include| S1
+    C6 -.->|include| S2
+    S2 -.->|include| S3
+    S2 -.->|include| S4
+    S4 -.->|extend| S5
+    S5 -.->|extend| S6
+    C6 -.->|include| S11
+    D6 -.->|include| S11
+    D9 -.->|include| S11
+    D10 -.->|include| S11
+    D12 -.->|include| S11
+    C6 -.->|include| S7
+    D13 -.->|include| S7
+    C10 -.->|include| S8
+    C11 -.->|include| S9
+    C12 -.->|include| S9
+    S9 -.->|extend| S10
+    O1 -.->|include| S1
+    O9 -.->|include| S1
+    O1 -.->|include| S12
+    O2 -.->|include| S12
+    O3 -.->|include| S12
+    O4 -.->|include| S12
+    O7 -.->|include| S12
+    O9 -.->|include| S12
+    O11 -.->|include| S12
+
+    C12 --- Payment
+    S11 --- Notify
+
+    classDef actor fill:#eef2ff,stroke:#818cf8,stroke-width:2px
+    classDef customer fill:#ecfeff,stroke:#22d3ee
+    classDef driver fill:#f0fdf4,stroke:#4ade80
+    classDef operations fill:#fff7ed,stroke:#fb923c
+    classDef system fill:#f5f3ff,stroke:#a78bfa
+    classDef external fill:#fdf4ff,stroke:#e879f9
+
+    class Customer,Driver,Operator,Admin actor
+    class C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14 customer
+    class D1,D2,D3,D4,D5,D6,D7,D8,D9,D10,D11,D12,D13 driver
+    class O1,O2,O3,O4,O5,O6,O7,O8,O9,O10,O11 operations
+    class S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12 system
+    class Payment,Notify external
 ```
