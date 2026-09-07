@@ -1,1 +1,31 @@
+openapi: 3.0.3
 
+info:
+  title: CAB System API
+  description: API Documentation cho hệ thống đặt xe CAB System
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local Server
+
+tags:
+  - name: Authentication
+    description: API xác thực người dùng
+
+  - name: Booking
+    description: API đặt xe
+
+  - name: Matching
+    description: API ghép tài xế
+
+  - name: Trip
+    description: API quản lý chuyến đi
+
+  - name: Payment
+    description: API thanh toán
+
+  - name: Rating
+    description: API đánh giá
+
+paths: {}
