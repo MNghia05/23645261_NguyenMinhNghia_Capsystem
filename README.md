@@ -4,9 +4,6 @@
 Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển đô thị ngày càng tăng đã bộc lộ rõ những hạn chế của mô hình vận hành đặt xe truyền thống. Việc điều phối thủ công qua tổng đài không chỉ làm tăng chi phí vận hành (OpEx) mà còn khiến khách hàng gặp khó khăn khi không thể biết trước cước phí hay theo dõi vị trí tài xế. Tình trạng này dẫn đến thời gian chờ đợi kéo dài, tỷ lệ hủy chuyến cao và thời gian chạy xe rỗng lớn. Bên cạnh đó, việc quản lý thanh toán tiền mặt và đối soát hoa hồng thủ công dễ gây thất thoát tài chính và khiến doanh nghiệp thiếu dữ liệu thời gian thực để ra quyết định kinh doanh kịp thời.
 
 **CAB System** ra đời như một giải pháp công nghệ toàn diện nhằm tự động hóa hoàn toàn quy trình vận hành. Nhờ thuật toán ghép chuyến thông minh theo bán kính định vị GPS, hệ thống kết nối khách hàng với tài xế gần nhất trong chưa đầy 30 giây, giúp tối ưu hóa quãng đường di chuyển và cắt giảm tối đa chi phí trung gian. Việc minh bạch hóa giá cước cố định (Upfront Pricing), tích hợp đa dạng cổng thanh toán điện tử, tự động hóa trích xuất hoa hồng vào Ví tài xế và cung cấp công cụ theo dõi hành trình thời gian thực không chỉ nâng cao trải nghiệm người dùng mà còn đảm bảo dòng tiền được quản lý chính xác, minh bạch. Đây là nền tảng công nghệ hiện đại, có khả năng mở rộng linh hoạt, giúp doanh nghiệp tối ưu hóa nguồn lực và bứt phá lợi thế cạnh tranh trên thị trường.
-
-9. phân tích quy trình nghiệp vụ 
-10. phân tích quy tắc nghiệp vụ (business rules)
     
 ---
 
