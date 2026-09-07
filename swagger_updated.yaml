@@ -1,0 +1,1485 @@
+openapi: 3.0.3
+
+info:
+  title: CAB System API
+  description: |
+    API Document cho CAB System - Nền tảng Đặt Xe Trực Tuyến.
+
+    Phạm vi MVP:
+    - Đăng ký / đăng nhập tài khoản
+    - Đặt xe tức thì
+    - Tự động ghép tài xế
+    - Quản lý vòng đời chuyến đi
+    - Theo dõi GPS realtime
+    - Tính cước và thanh toán (kèm giữ tiền/pre-auth cho thanh toán điện tử)
+    - Khấu trừ hoa hồng tài xế & quản lý Ví tài xế
+    - Đánh giá tài xế
+    - Duyệt hồ sơ tài xế
+    - Hỗ trợ khách hàng (ticket phát sinh từ đánh giá thấp)
+
+    So với bản v1.0.0, bản này (v1.1.0) bổ sung các API còn thiếu so với
+    tài liệu nghiệp vụ (README): đăng ký tài khoản, tải hồ sơ tài xế,
+    danh sách hồ sơ chờ duyệt, giữ tiền (hold) khi đặt xe điện tử,
+    nạp ví tài xế, lịch sử chuyến đi, thống kê tỉ lệ hủy chuyến/rating
+    tài xế và ticket CSKH tự động khi bị đánh giá thấp.
+  version: 1.1.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Development Server
+
+tags:
+  - name: Authentication
+    description: Đăng ký, đăng nhập và xác thực
+  - name: Booking
+    description: Đặt xe tức thì
+  - name: Matching
+    description: Tự động ghép tài xế
+  - name: Trip
+    description: Tiếp nhận và thực hiện chuyến đi
+  - name: Tracking
+    description: GPS realtime và SOS
+  - name: Payment
+    description: Tính cước và thanh toán
+  - name: Rating
+    description: Đánh giá và phản hồi
+  - name: Driver
+    description: Chức năng tài xế (hồ sơ, trạng thái, ví)
+  - name: Operations
+    description: Vận hành, duyệt hồ sơ và giám sát tài xế
+  - name: Support
+    description: Ticket chăm sóc khách hàng
+
+paths:
+
+  # ==========================================================
+  # AUTHENTICATION
+  # ==========================================================
+
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Đăng ký tài khoản mới
+      description: |
+        Đăng ký tài khoản Khách hàng hoặc Tài xế.
+        - Với role CUSTOMER: tài khoản có thể sử dụng ngay sau khi đăng ký.
+        - Với role DRIVER: tài khoản được tạo ở trạng thái hồ sơ `PENDING`,
+          tài xế cần gọi thêm API `/drivers/documents` để tải giấy tờ trước khi
+          được Vận hành duyệt qua `/drivers/{driverId}/approval`.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Đăng ký thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Số điện thoại / username đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Đăng nhập
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ==========================================================
+  # BOOKING
+  # ==========================================================
+
+  /bookings:
+    post:
+      tags: [Booking]
+      summary: Tạo yêu cầu đặt xe tức thì
+      description: |
+        Khách hàng chọn điểm đón, điểm đến, loại xe và phương thức thanh toán.
+        Hệ thống tính Upfront Price/ETA, kiểm tra không có chuyến đang hoạt động
+        và tạo chuyến ở trạng thái PENDING.
+
+        Nếu `paymentMethod = ELECTRONIC`, hệ thống thực hiện giữ tiền
+        (Hold/Pre-auth) qua Cổng thanh toán ngay tại bước này:
+        - Giữ tiền thành công: tiếp tục tạo booking `PENDING`,
+          `paymentHoldStatus = HELD`.
+        - Giữ tiền thất bại: booking vẫn được tạo nhưng
+          `paymentMethod` tự động chuyển về `CASH` và
+          `paymentHoldStatus = FAILED_FALLBACK_TO_CASH`.
+      operationId: createBooking
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Tạo yêu cầu đặt xe thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Khách hàng đang có chuyến chưa hoàn thành
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags: [Booking]
+      summary: Xem lịch sử đặt xe
+      operationId: getBookings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách yêu cầu đặt xe
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+
+  /bookings/{bookingId}:
+    get:
+      tags: [Booking]
+      summary: Xem chi tiết yêu cầu đặt xe
+      operationId: getBooking
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Chi tiết đặt xe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Booking]
+      summary: Hủy chuyến
+      description: |
+        Hủy chuyến theo chính sách:
+        - Khách hàng hủy trong 2 phút đầu: miễn phí.
+        - Khách hàng hủy sau 2 phút kể từ ACCEPTED: phạt 15.000 VNĐ.
+        - Tài xế tự ý hủy trước khi đến điểm đón hoặc chưa chờ đủ 5 phút: phạt 20.000 VNĐ và trừ 0.2 sao.
+
+        Nếu chuyến đã giữ tiền (`paymentHoldStatus = HELD`), hệ thống tự động
+        hủy giữ tiền (Void) hoặc thu phí phạt tương ứng qua Cổng thanh toán.
+      operationId: cancelBooking
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+      responses:
+        '200':
+          description: Hủy chuyến thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /bookings/{bookingId}/matching:
+    post:
+      tags: [Matching]
+      summary: Tự động ghép tài xế
+      description: |
+        Hệ thống quét tài xế AVAILABLE trong bán kính 3km.
+        Điểm ưu tiên = (1 / Khoảng cách GPS km) * 0.6 + Rating * 0.4.
+        Tài xế có 15 giây để chấp nhận. Tối đa 3 lượt hoặc 120 giây.
+        Nếu không thành công, mở rộng bán kính lên 5km và cuối cùng chuyển FAILED.
+      operationId: matchBooking
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Kết quả ghép tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchingResult'
+        '404':
+          description: Không tìm thấy tài xế phù hợp
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '408':
+          description: Hết thời gian ghép chuyến
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /bookings/{bookingId}/accept:
+    post:
+      tags: [Matching]
+      summary: Tài xế chấp nhận chuyến
+      description: Tài xế có đúng 15 giây để chấp nhận yêu cầu.
+      operationId: acceptBooking
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Nhận chuyến thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '408':
+          description: Hết thời gian chấp nhận
+        '409':
+          description: Chuyến đã được tài xế khác nhận
+
+  # ==========================================================
+  # TRIP
+  # ==========================================================
+
+  /trips:
+    get:
+      tags: [Trip]
+      summary: Xem lịch sử chuyến đi
+      description: |
+        Trả về danh sách chuyến đi của người dùng hiện tại
+        (Khách hàng thấy chuyến của mình, Tài xế thấy chuyến đã nhận).
+      operationId: getTrips
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Lọc theo trạng thái chuyến đi
+          schema:
+            type: string
+            enum:
+              - ACCEPTED
+              - ARRIVED
+              - IN_PROGRESS
+              - COMPLETED
+              - CANCELLED
+              - CANCELLED_BY_DRIVER
+      responses:
+        '200':
+          description: Danh sách chuyến đi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trip'
+
+  /trips/{tripId}:
+    get:
+      tags: [Trip]
+      summary: Xem thông tin chuyến đi
+      operationId: getTrip
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: Thông tin chuyến
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /trips/{tripId}/status:
+    put:
+      tags: [Trip]
+      summary: Cập nhật trạng thái chuyến đi
+      description: |
+        Vòng đời chính:
+        ACCEPTED -> ARRIVED -> IN_PROGRESS -> COMPLETED.
+        Có thể chuyển sang trạng thái CANCELLED/CANCELLED_BY_DRIVER theo điều kiện.
+      operationId: updateTripStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTripStatusRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /trips/{tripId}/location:
+    get:
+      tags: [Tracking]
+      summary: Xem vị trí tài xế
+      operationId: getTripLocation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      responses:
+        '200':
+          description: Vị trí GPS hiện tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPSLocation'
+
+    post:
+      tags: [Tracking]
+      summary: Cập nhật vị trí GPS
+      description: |
+        Tài xế gửi tọa độ GPS về Server với tần suất 3 giây/lần.
+        Nếu Server không nhận được cập nhật quá 30 giây, hệ thống tự động
+        đánh dấu `gpsSignalLost = true` trên chuyến đi và cảnh báo Tài xế.
+      operationId: updateTripLocation
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GPSLocation'
+      responses:
+        '200':
+          description: Cập nhật vị trí thành công
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /trips/{tripId}/sos:
+    post:
+      tags: [Tracking]
+      summary: Gửi cảnh báo khẩn cấp SOS
+      description: Gửi cảnh báo ưu tiên cao đến Khối Vận hành và dịch vụ thông báo.
+      operationId: sendSOS
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TripId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SOSRequest'
+      responses:
+        '201':
+          description: Gửi cảnh báo SOS thành công
+
+  # ==========================================================
+  # PAYMENT
+  # ==========================================================
+
+  /payments:
+    post:
+      tags: [Payment]
+      summary: Xử lý thanh toán chuyến đi
+      description: |
+        Tính cước cuối cùng dựa trên GPS và phương thức thanh toán.
+        Hỗ trợ CASH và ELECTRONIC. Nếu thanh toán điện tử thất bại
+        (kể cả khoản đã giữ tiền/Hold trước đó không thể Capture),
+        hệ thống tự động chuyển sang CASH.
+        Sau khi hoàn tất, hệ thống khấu trừ 20% hoa hồng vào ví tài xế và
+        kiểm tra số dư ví; nếu ví < 0 VNĐ, tài xế tự động chuyển OFFLINE.
+      operationId: createPayment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Thanh toán thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '402':
+          description: Thanh toán điện tử thất bại và chuyển sang tiền mặt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentFallback'
+
+  /payments/{paymentId}:
+    get:
+      tags: [Payment]
+      summary: Xem giao dịch thanh toán
+      operationId: getPayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PaymentId'
+      responses:
+        '200':
+          description: Chi tiết giao dịch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+
+  # ==========================================================
+  # RATING
+  # ==========================================================
+
+  /ratings:
+    post:
+      tags: [Rating]
+      summary: Đánh giá chuyến đi
+      description: |
+        Khách hàng đánh giá tài xế từ 1 đến 5 sao và có thể nhập phản hồi.
+        Nếu `rating` từ 1-2 sao, hệ thống tự động tạo Ticket CSKH
+        ưu tiên cao (xem `Support`).
+      operationId: createRating
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingRequest'
+      responses:
+        '201':
+          description: Đánh giá thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ==========================================================
+  # DRIVER
+  # ==========================================================
+
+  /drivers/profile:
+    get:
+      tags: [Driver]
+      summary: Xem hồ sơ tài xế
+      operationId: getDriverProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Hồ sơ tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+
+  /drivers/documents:
+    post:
+      tags: [Driver]
+      summary: Tải lên giấy tờ đăng ký
+      description: |
+        Tài xế tải lên ảnh chụp CCCD, Bằng lái, Đăng ký xe, Bảo hiểm
+        sau khi đăng ký tài khoản (role DRIVER). Hồ sơ ở trạng thái
+        `PENDING` cho đến khi Vận hành duyệt qua `/drivers/{driverId}/approval`.
+      operationId: uploadDriverDocuments
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverDocumentsRequest'
+      responses:
+        '200':
+          description: Tải hồ sơ thành công, chờ duyệt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /drivers/status:
+    put:
+      tags: [Driver]
+      summary: Cập nhật trạng thái làm việc
+      description: |
+        Tài xế chỉ được AVAILABLE khi:
+        - Hồ sơ và giấy tờ đã được duyệt ACTIVE.
+        - Ví tài xế >= 100.000 VNĐ.
+        - Rating >= 3.0 sao.
+      operationId: updateDriverStatus
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverStatusRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /drivers/wallet:
+    get:
+      tags: [Driver]
+      summary: Xem số dư và lịch sử giao dịch Ví tài xế
+      operationId: getDriverWallet
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Thông tin ví
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+
+  /drivers/wallet/topup:
+    post:
+      tags: [Driver]
+      summary: Nạp tiền vào Ví tài xế
+      description: |
+        Tài xế nạp tiền vào ví qua Cổng thanh toán điện tử để đáp ứng
+        điều kiện số dư tối thiểu 100.000 VNĐ (BR-RULE-01) hoặc sau khi
+        ví bị âm và tài khoản chuyển OFFLINE (BR-RULE-07).
+      operationId: topUpDriverWallet
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletTopUpRequest'
+      responses:
+        '200':
+          description: Nạp tiền thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+        '402':
+          description: Giao dịch nạp tiền thất bại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ==========================================================
+  # OPERATIONS
+  # ==========================================================
+
+  /drivers/pending:
+    get:
+      tags: [Operations]
+      summary: Danh sách hồ sơ tài xế chờ duyệt
+      description: Nhân viên vận hành xem danh sách hồ sơ tài xế ở trạng thái PENDING.
+      operationId: getPendingDrivers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách hồ sơ chờ duyệt
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+
+  /drivers/{driverId}/approval:
+    put:
+      tags: [Operations]
+      summary: Duyệt hồ sơ tài xế
+      description: |
+        Nhân viên vận hành kiểm tra CCCD, bằng lái, đăng ký xe và bảo hiểm.
+        Nếu hợp lệ, tài khoản chuyển ACTIVE và hệ thống khởi tạo ví tài xế.
+        Nếu không hợp lệ, hồ sơ chuyển REJECTED và tài xế được yêu cầu
+        tải lại giấy tờ qua `/drivers/documents`.
+      operationId: approveDriver
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DriverId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverApprovalRequest'
+      responses:
+        '200':
+          description: Xử lý hồ sơ thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /drivers/{driverId}/stats:
+    get:
+      tags: [Operations]
+      summary: Thống kê tỉ lệ hủy chuyến & rating tài xế
+      description: |
+        Dùng để giám sát BR-RULE-10:
+        - Khóa quyền nhận chuyến 24h nếu `cancellationRateToday > 30%`.
+        - Tạm khóa tài khoản nếu `averageRatingLast20Trips < 3.0`.
+      operationId: getDriverStats
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/DriverId'
+      responses:
+        '200':
+          description: Thống kê tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverStats'
+
+  # ==========================================================
+  # SUPPORT
+  # ==========================================================
+
+  /tickets:
+    get:
+      tags: [Support]
+      summary: Danh sách ticket CSKH
+      description: |
+        Bao gồm ticket được tạo tự động khi Khách hàng đánh giá 1-2 sao,
+        hoặc do Khách hàng/Tài xế chủ động phản ánh sự cố.
+      operationId: getTickets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED]
+      responses:
+        '200':
+          description: Danh sách ticket
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+
+  /tickets/{ticketId}:
+    get:
+      tags: [Support]
+      summary: Xem chi tiết ticket
+      operationId: getTicket
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+      responses:
+        '200':
+          description: Chi tiết ticket
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Support]
+      summary: Cập nhật xử lý ticket
+      operationId: updateTicket
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTicketRequest'
+      responses:
+        '200':
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    BookingId:
+      name: bookingId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1001
+
+    TripId:
+      name: tripId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 2001
+
+    PaymentId:
+      name: paymentId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 5001
+
+    DriverId:
+      name: driverId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 301
+
+    TicketId:
+      name: ticketId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 7001
+
+  responses:
+    BadRequest:
+      description: Dữ liệu hoặc yêu cầu không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Chưa xác thực hoặc token không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Không tìm thấy tài nguyên
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+
+    RegisterRequest:
+      type: object
+      required: [fullName, phone, password, role]
+      properties:
+        fullName:
+          type: string
+          example: Nguyễn Văn B
+        phone:
+          type: string
+          example: "0901234567"
+        password:
+          type: string
+          format: password
+          example: "123456"
+        role:
+          type: string
+          enum: [CUSTOMER, DRIVER]
+          example: CUSTOMER
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: customer01
+        password:
+          type: string
+          format: password
+          example: "123456"
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIs...
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          example: 3600
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 501
+        fullName:
+          type: string
+          example: Nguyễn Văn B
+        phone:
+          type: string
+          example: "0901234567"
+        role:
+          type: string
+          enum: [CUSTOMER, DRIVER, OPERATIONS, MANAGEMENT]
+
+    Location:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        address:
+          type: string
+          example: 12 Nguyễn Huệ, Quận 1, TP.HCM
+        latitude:
+          type: number
+          format: double
+          example: 10.7769
+        longitude:
+          type: number
+          format: double
+          example: 106.7009
+
+    CreateBookingRequest:
+      type: object
+      required:
+        - pickupLocation
+        - destination
+        - vehicleType
+        - paymentMethod
+      properties:
+        pickupLocation:
+          $ref: '#/components/schemas/Location'
+        destination:
+          $ref: '#/components/schemas/Location'
+        vehicleType:
+          type: string
+          enum: [MOTORBIKE, CAR]
+          example: MOTORBIKE
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+
+    Booking:
+      type: object
+      properties:
+        bookingId:
+          type: integer
+          format: int64
+          example: 1001
+        customerId:
+          type: integer
+          format: int64
+          example: 501
+        pickupLocation:
+          $ref: '#/components/schemas/Location'
+        destination:
+          $ref: '#/components/schemas/Location'
+        vehicleType:
+          type: string
+          enum: [MOTORBIKE, CAR]
+        estimatedDistanceKm:
+          type: number
+          format: double
+          example: 5.2
+        estimatedDurationMinutes:
+          type: integer
+          example: 18
+        upfrontFare:
+          type: number
+          format: double
+          example: 45000
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        paymentHoldStatus:
+          type: string
+          description: Trạng thái giữ tiền (Hold/Pre-auth) khi paymentMethod = ELECTRONIC.
+          enum: [NOT_APPLICABLE, HELD, FAILED_FALLBACK_TO_CASH, VOIDED, CAPTURED]
+          example: HELD
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        createdAt:
+          type: string
+          format: date-time
+
+    BookingStatus:
+      type: string
+      enum:
+        - PENDING
+        - MATCHING
+        - ACCEPTED
+        - ARRIVED
+        - IN_PROGRESS
+        - COMPLETED
+        - FAILED
+        - CANCELLED
+        - CANCELLED_BY_DRIVER
+
+    MatchingResult:
+      type: object
+      properties:
+        bookingId:
+          type: integer
+          example: 1001
+        driverId:
+          type: integer
+          example: 301
+        distanceKm:
+          type: number
+          format: double
+          example: 1.5
+        driverRating:
+          type: number
+          format: double
+          example: 4.8
+        priorityScore:
+          type: number
+          format: double
+          example: 2.024
+        acceptanceTimeoutSeconds:
+          type: integer
+          example: 15
+        retryLimit:
+          type: integer
+          example: 3
+        maxMatchingTimeSeconds:
+          type: integer
+          example: 120
+        status:
+          type: string
+          enum: [WAITING_FOR_ACCEPT, ACCEPTED, FAILED]
+
+    Trip:
+      type: object
+      properties:
+        tripId:
+          type: integer
+          example: 2001
+        bookingId:
+          type: integer
+          example: 1001
+        customerId:
+          type: integer
+          example: 501
+        driverId:
+          type: integer
+          example: 301
+        status:
+          type: string
+          enum:
+            - ACCEPTED
+            - ARRIVED
+            - IN_PROGRESS
+            - COMPLETED
+            - CANCELLED
+            - CANCELLED_BY_DRIVER
+        actualDistanceKm:
+          type: number
+          format: double
+          example: 5.4
+        waitingFee:
+          type: number
+          format: double
+          description: Phí chờ phát sinh (nếu có), theo BR-RULE-06.
+          example: 0
+        finalFare:
+          type: number
+          format: double
+          example: 50000
+        gpsSignalLost:
+          type: boolean
+          description: True nếu Server không nhận tọa độ GPS quá 30 giây (BR-RULE-12).
+          example: false
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+
+    UpdateTripStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum:
+            - ARRIVED
+            - IN_PROGRESS
+            - COMPLETED
+            - CANCELLED
+            - CANCELLED_BY_DRIVER
+        reason:
+          type: string
+          example: Khách không đến điểm đón.
+
+    CancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: Khách thay đổi kế hoạch.
+
+    GPSLocation:
+      type: object
+      required: [latitude, longitude, timestamp]
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 10.7769
+        longitude:
+          type: number
+          format: double
+          example: 106.7009
+        timestamp:
+          type: string
+          format: date-time
+        accuracyMeters:
+          type: number
+          format: double
+          example: 8.5
+
+    SOSRequest:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 10.7769
+        longitude:
+          type: number
+          format: double
+          example: 106.7009
+        message:
+          type: string
+          example: Cần hỗ trợ khẩn cấp.
+
+    PaymentMethod:
+      type: string
+      enum: [CASH, ELECTRONIC]
+
+    PaymentRequest:
+      type: object
+      required: [tripId, paymentMethod]
+      properties:
+        tripId:
+          type: integer
+          example: 2001
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+
+    Payment:
+      type: object
+      properties:
+        paymentId:
+          type: integer
+          example: 5001
+        tripId:
+          type: integer
+          example: 2001
+        baseFare:
+          type: number
+          format: double
+          description: Giá mở cửa.
+          example: 12000
+        distanceFare:
+          type: number
+          format: double
+          description: Max(0, Số km thực tế - Km mở cửa) * Đơn giá/km.
+          example: 34000
+        waitingFee:
+          type: number
+          format: double
+          example: 4000
+        amount:
+          type: number
+          format: double
+          description: Tổng cước = baseFare + distanceFare + waitingFee.
+          example: 50000
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        status:
+          type: string
+          enum: [PENDING, SUCCESS, FAILED, FALLBACK_TO_CASH]
+        commissionRate:
+          type: number
+          format: double
+          example: 0.20
+        commissionAmount:
+          type: number
+          format: double
+          example: 10000
+        driverWalletBalanceAfter:
+          type: number
+          format: double
+          example: 240000
+        paidAt:
+          type: string
+          format: date-time
+
+    PaymentFallback:
+      type: object
+      properties:
+        status:
+          type: string
+          example: FALLBACK_TO_CASH
+        message:
+          type: string
+          example: Thanh toán điện tử thất bại, vui lòng thu tiền mặt.
+        fallbackPaymentMethod:
+          type: string
+          example: CASH
+
+    RatingRequest:
+      type: object
+      required: [tripId, rating]
+      properties:
+        tripId:
+          type: integer
+          example: 2001
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          example: Tài xế thân thiện và chạy xe an toàn.
+
+    Rating:
+      type: object
+      properties:
+        ratingId:
+          type: integer
+          example: 9001
+        tripId:
+          type: integer
+          example: 2001
+        customerId:
+          type: integer
+          example: 501
+        driverId:
+          type: integer
+          example: 301
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        autoTicketId:
+          type: integer
+          nullable: true
+          description: Ticket CSKH được tạo tự động nếu rating 1-2 sao, ngược lại null.
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+
+    Driver:
+      type: object
+      properties:
+        driverId:
+          type: integer
+          example: 301
+        fullName:
+          type: string
+          example: Nguyễn Văn A
+        phone:
+          type: string
+          example: "0901234567"
+        rating:
+          type: number
+          format: double
+          example: 4.8
+        walletBalance:
+          type: number
+          format: double
+          example: 250000
+        documents:
+          $ref: '#/components/schemas/DriverDocumentsRequest'
+        profileStatus:
+          type: string
+          enum: [PENDING, ACTIVE, REJECTED, SUSPENDED]
+        workStatus:
+          type: string
+          enum: [AVAILABLE, OFFLINE, SUSPENDED]
+
+    DriverDocumentsRequest:
+      type: object
+      required:
+        - nationalIdImageUrl
+        - driverLicenseImageUrl
+        - vehicleRegistrationImageUrl
+        - insuranceImageUrl
+      properties:
+        nationalIdImageUrl:
+          type: string
+          format: uri
+          description: Ảnh chụp CCCD.
+          example: https://cdn.cabsystem.vn/docs/301/cccd.jpg
+        driverLicenseImageUrl:
+          type: string
+          format: uri
+          description: Ảnh chụp Bằng lái.
+          example: https://cdn.cabsystem.vn/docs/301/license.jpg
+        vehicleRegistrationImageUrl:
+          type: string
+          format: uri
+          description: Ảnh chụp Đăng ký xe.
+          example: https://cdn.cabsystem.vn/docs/301/registration.jpg
+        insuranceImageUrl:
+          type: string
+          format: uri
+          description: Ảnh chụp Bảo hiểm.
+          example: https://cdn.cabsystem.vn/docs/301/insurance.jpg
+
+    DriverStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [AVAILABLE, OFFLINE]
+
+    DriverApprovalRequest:
+      type: object
+      required: [approvalStatus]
+      properties:
+        approvalStatus:
+          type: string
+          description: Kết quả duyệt, ánh xạ trực tiếp sang Driver.profileStatus.
+          enum: [ACTIVE, REJECTED]
+          example: ACTIVE
+        reason:
+          type: string
+          example: Bằng lái hết hạn.
+
+    DriverStats:
+      type: object
+      properties:
+        driverId:
+          type: integer
+          example: 301
+        cancellationRateToday:
+          type: number
+          format: double
+          description: Tỉ lệ hủy chuyến trong ngày (0-1). Khóa 24h nếu > 0.3 (BR-RULE-10).
+          example: 0.12
+        averageRatingLast20Trips:
+          type: number
+          format: double
+          description: Rating trung bình 20 chuyến gần nhất. Tạm khóa nếu < 3.0.
+          example: 4.6
+        autoLocked:
+          type: boolean
+          example: false
+        autoLockReason:
+          type: string
+          nullable: true
+          example: null
+
+    Wallet:
+      type: object
+      properties:
+        driverId:
+          type: integer
+          example: 301
+        balance:
+          type: number
+          format: double
+          example: 250000
+        minimumRequiredBalance:
+          type: number
+          format: double
+          example: 100000
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/WalletTransaction'
+
+    WalletTransaction:
+      type: object
+      properties:
+        transactionId:
+          type: integer
+          example: 30001
+        type:
+          type: string
+          enum: [COMMISSION_DEDUCTION, TOPUP, PENALTY]
+        amount:
+          type: number
+          format: double
+          example: -10000
+        relatedTripId:
+          type: integer
+          nullable: true
+          example: 2001
+        createdAt:
+          type: string
+          format: date-time
+
+    WalletTopUpRequest:
+      type: object
+      required: [amount, paymentMethod]
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 200000
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+
+    Ticket:
+      type: object
+      properties:
+        ticketId:
+          type: integer
+          example: 7001
+        tripId:
+          type: integer
+          nullable: true
+          example: 2001
+        source:
+          type: string
+          enum: [AUTO_LOW_RATING, CUSTOMER_REPORT, DRIVER_REPORT]
+          example: AUTO_LOW_RATING
+        priority:
+          type: string
+          enum: [HIGH, NORMAL]
+          example: HIGH
+        status:
+          type: string
+          enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED]
+          example: OPEN
+        description:
+          type: string
+          example: Khách hàng đánh giá 1 sao, phản ánh tài xế đi sai lộ trình.
+        assignedTo:
+          type: integer
+          nullable: true
+          description: userId của Nhân viên CSKH xử lý ticket.
+          example: null
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateTicketRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [IN_PROGRESS, RESOLVED, CLOSED]
+        resolutionNote:
+          type: string
+          example: Đã liên hệ khách hàng và hoàn tiền chuyến đi.
+
+    Error:
+      type: object
+      required: [error_code, message]
+      properties:
+        error_code:
+          type: string
+          example: BOOKING_NOT_FOUND
+        message:
+          type: string
+          example: Không tìm thấy yêu cầu đặt xe.
+        details:
+          type: object
+          additionalProperties: true
