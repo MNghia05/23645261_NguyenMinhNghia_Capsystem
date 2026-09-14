@@ -341,29 +341,6 @@ Bảng tổng hợp chi tiết toàn bộ các chức năng hệ thống đượ
 
 ---
 
-### 📌 Ghi Chú Rà Soát Bổ Sung Đặc Tả Use Case
-
-Sau khi đối chiếu đặc tả **UC01–UC05** với bảng **Tác nhân hệ thống**, **Yêu cầu nghiệp vụ (mục 5)**, **Ma trận chức năng (mục 6)** và **Quy tắc nghiệp vụ (mục 10)**, nhận thấy một số nghiệp vụ đã được nhắc tới ở các mục trên (actor có hành động, có BR/BR-RULE tương ứng) nhưng **chưa có đặc tả Use Case chi tiết**. Cụ thể còn thiếu:
-
-| # | Use Case còn thiếu | Căn cứ phát hiện thiếu |
-| :--- | :--- | :--- |
-| UC06 | Đăng ký & Đăng nhập tài khoản (OTP) | Actor "Khách hàng/Tài xế" ghi "đăng ký/đăng nhập"; Roadmap Tuần 2 "Auth, OTP" chưa có UC. |
-| UC07 | Đăng ký hồ sơ Tài xế (tải giấy tờ) | Là tiền điều kiện của UC05 nhưng chưa được đặc tả riêng. |
-| UC08 | Bật/Tắt trạng thái sẵn sàng nhận chuyến | BR-RULE-01 định nghĩa 3 điều kiện nhưng chưa có UC mô tả luồng thao tác. |
-| UC09 | Khách hàng hủy chuyến đi | BR-BOOK-03 & BR-RULE-09 (phí phạt) chưa có UC riêng cho hành động hủy của Khách hàng. |
-| UC10 | Theo dõi hành trình & Báo động khẩn cấp (SOS) | BR-TRK-01, BR-TRK-02 có trong BRD/Feature Matrix nhưng chưa có UC. |
-| UC11 | Đánh giá Tài xế sau chuyến đi | BR-OPS-02 (rating, auto-tạo ticket CSKH) chưa có UC. |
-| UC12 | Nạp tiền vào Ví tài xế | BR-RULE-07 và sơ đồ flowchart 9.2.3 có nhắc "Yêu cầu nạp tiền" nhưng chưa có UC. |
-| UC13 | Giám sát chuyến đi & Xử lý sự cố (Vận hành) | Actor "Nhân viên vận hành" và Khối Vận hành (mục 3) mô tả "Live Map Dashboard", "xử lý sự cố" nhưng chưa có UC. |
-| UC14 | Tra cứu lịch sử chuyến đi & giao dịch | Actor Khách hàng "xem lịch sử" và Nhân viên vận hành "tra cứu giao dịch" — trong scope MVP (mục 4.1) nhưng chưa có UC. |
-| UC15 | Xem báo cáo thống kê vận hành (Executive Dashboard) | Actor "Ban giám đốc" và Khối Quản trị & Chiến lược (mục 3) — trong scope MVP nhưng chưa có UC. |
-
-*(Các tính năng thuộc Giai đoạn 2/Out-of-Scope như Surge Pricing, Ride Sharing, Loyalty Point, In-app Chat, BI/Analytics chuyên sâu không được đặc tả UC vì nằm ngoài phạm vi MVP 7 tuần — xem mục 4.1.)*
-
-Các đặc tả bổ sung **UC06–UC15** được trình bày dưới đây, theo đúng khuôn mẫu (format) của UC01–UC05.
-
----
-
 ### UC06: Đăng Ký & Đăng Nhập Tài Khoản (Xác Thực OTP)
 
 | **Tên Use Case** | **Đăng ký & Đăng nhập tài khoản (OTP)** |
