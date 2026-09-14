@@ -17,11 +17,6 @@ info:
     - Duyệt hồ sơ tài xế
     - Hỗ trợ khách hàng (ticket phát sinh từ đánh giá thấp)
 
-    So với bản v1.0.0, bản này (v1.1.0) bổ sung các API còn thiếu so với
-    tài liệu nghiệp vụ (README): đăng ký tài khoản, tải hồ sơ tài xế,
-    danh sách hồ sơ chờ duyệt, giữ tiền (hold) khi đặt xe điện tử,
-    nạp ví tài xế, lịch sử chuyến đi, thống kê tỉ lệ hủy chuyến/rating
-    tài xế và ticket CSKH tự động khi bị đánh giá thấp.
   version: 1.1.0
 
 servers:
