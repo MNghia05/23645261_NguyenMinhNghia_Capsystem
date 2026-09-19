@@ -1,0 +1,79 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Operations & Reports
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Operations & Reports
+paths:
+  /operations/incidents:
+    get:
+      summary: Operations Staff xem sự cố
+      description: Operations Staff xem sự cố. Thuộc module Operations & Reports.
+      tags:
+      - Operations & Reports
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      security:
+      - bearerAuth: []
+    put:
+      summary: Operations Staff xử lý/cập nhật sự cố
+      description: Operations Staff xử lý/cập nhật sự cố. Thuộc module Operations & Reports.
+      tags:
+      - Operations & Reports
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      security:
+      - bearerAuth: []
+  /reports/operations:
+    get:
+      summary: Management xem báo cáo vận hành
+      description: Management xem báo cáo vận hành. Thuộc module Operations & Reports.
+      tags:
+      - Operations & Reports
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

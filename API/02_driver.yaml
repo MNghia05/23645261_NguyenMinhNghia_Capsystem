@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Driver Management
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Driver Management
+paths:
+  /drivers/profile:
+    post:
+      summary: Đăng ký hồ sơ tài xế và tải giấy tờ
+      description: Đăng ký hồ sơ tài xế và tải giấy tờ. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      security:
+      - bearerAuth: []
+    get:
+      summary: Xem hồ sơ tài xế
+      description: Xem hồ sơ tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      security:
+      - bearerAuth: []
+    put:
+      summary: Cập nhật hồ sơ tài xế
+      description: Cập nhật hồ sơ tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      security:
+      - bearerAuth: []
+  /drivers/status:
+    put:
+      summary: Cập nhật trạng thái sẵn sàng của tài xế
+      description: Cập nhật trạng thái sẵn sàng của tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      security:
+      - bearerAuth: []
+  /drivers:
+    get:
+      summary: Operations Staff xem danh sách tài xế
+      description: Operations Staff xem danh sách tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      security:
+      - bearerAuth: []
+  /drivers/{driverId}/approval:
+    put:
+      summary: Duyệt hoặc từ chối hồ sơ tài xế
+      description: Duyệt hoặc từ chối hồ sơ tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      parameters:
+      - name: driverId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

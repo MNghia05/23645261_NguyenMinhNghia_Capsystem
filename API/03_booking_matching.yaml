@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Booking & Matching
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Booking & Matching
+paths:
+  /bookings:
+    post:
+      summary: Tạo yêu cầu đặt xe
+      description: Tạo yêu cầu đặt xe. Thuộc module Booking & Matching.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      security:
+      - bearerAuth: []
+    get:
+      summary: Tra cứu danh sách chuyến đặt
+      description: Tra cứu danh sách chuyến đặt. Thuộc module Booking & Matching.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      security:
+      - bearerAuth: []
+  /bookings/{bookingId}:
+    get:
+      summary: Xem chi tiết booking
+      description: Xem chi tiết booking. Thuộc module Booking & Matching.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+    put:
+      summary: Cập nhật hoặc hủy booking
+      description: Cập nhật hoặc hủy booking. Thuộc module Booking & Matching.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+  /bookings/{bookingId}/matching:
+    post:
+      summary: Thực hiện ghép tài xế tự động
+      description: Thực hiện ghép tài xế tự động. Thuộc module Booking & Matching.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

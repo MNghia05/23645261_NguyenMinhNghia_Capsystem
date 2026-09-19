@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Trip & Tracking
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Trip & Tracking
+paths:
+  /trips/{tripId}:
+    get:
+      summary: Xem thông tin và trạng thái chuyến
+      description: Xem thông tin và trạng thái chuyến. Thuộc module Trip & Tracking.
+      tags:
+      - Trip & Tracking
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+    put:
+      summary: Cập nhật trạng thái chuyến
+      description: Cập nhật trạng thái chuyến. Thuộc module Trip & Tracking.
+      tags:
+      - Trip & Tracking
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+  /trips/{tripId}/location:
+    get:
+      summary: Xem vị trí GPS của chuyến
+      description: Xem vị trí GPS của chuyến. Thuộc module Trip & Tracking.
+      tags:
+      - Trip & Tracking
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+    post:
+      summary: Cập nhật vị trí GPS
+      description: Cập nhật vị trí GPS. Thuộc module Trip & Tracking.
+      tags:
+      - Trip & Tracking
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+  /trips/{tripId}/sos:
+    post:
+      summary: Gửi cảnh báo SOS
+      description: Gửi cảnh báo SOS. Thuộc module Trip & Tracking.
+      tags:
+      - Trip & Tracking
+      responses:
+        '200':
+          description: Thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '401':
+          description: Chưa xác thực
+        '403':
+          description: Không có quyền thực hiện
+        '404':
+          description: Không tìm thấy tài nguyên
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
