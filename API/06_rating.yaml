@@ -1,0 +1,115 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Rating & Feedback
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Rating & Feedback
+paths:
+  /ratings:
+    post:
+      summary: Đánh giá chuyến đi/tài xế
+      description: >-
+        Đánh giá chuyến đi/tài xế. Thuộc module Rating & Feedback. Chỉ đánh
+        giá được chuyến đã COMPLETED, và mỗi (tripId, customerId) chỉ được
+        đánh giá đúng một lần (xem States.md mục 6).
+      tags:
+      - Rating & Feedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRatingRequest'
+      responses:
+        '200':
+          description: Đánh giá được lưu, điểm trung bình của tài xế được cập nhật
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+        '400':
+          description: >-
+            Điểm ngoài khoảng cho phép, thiếu điểm, hoặc chuyến chưa
+            COMPLETED.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Chuyến đi không thuộc về người dùng này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: >-
+            Chuyến đi này đã được đánh giá trước đó (TC-UC11-SPC-001) -
+            trước bản sửa này đang trả 400, đề xuất tách riêng thành 409 để
+            phân biệt với lỗi dữ liệu đầu vào.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CreateRatingRequest:
+      type: object
+      required: [tripId, score]
+      properties:
+        tripId:
+          type: string
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+    Rating:
+      type: object
+      properties:
+        ratingId:
+          type: string
+        tripId:
+          type: string
+        driverId:
+          type: string
+        customerId:
+          type: string
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string

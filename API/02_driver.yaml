@@ -1,0 +1,307 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Driver Management
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Driver Management
+paths:
+  /drivers/profile:
+    post:
+      summary: Đăng ký hồ sơ tài xế và tải giấy tờ
+      description: Đăng ký hồ sơ tài xế và tải giấy tờ. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverProfileRequest'
+      responses:
+        '200':
+          description: Hồ sơ được tạo, trạng thái duyệt PENDING
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverProfile'
+        '400':
+          description: Dữ liệu không hợp lệ, hoặc thiếu giấy tờ bắt buộc
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+    get:
+      summary: Xem hồ sơ tài xế
+      description: Xem hồ sơ tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverProfile'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Chưa có hồ sơ tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+    put:
+      summary: Cập nhật hồ sơ tài xế
+      description: Cập nhật hồ sơ tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverProfileRequest'
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverProfile'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+  /drivers/status:
+    put:
+      summary: Cập nhật trạng thái sẵn sàng của tài xế
+      description: Cập nhật trạng thái sẵn sàng của tài xế. Thuộc module Driver Management.
+        Chỉ tài xế có approvalStatus = APPROVED mới được chuyển sang AVAILABLE.
+      tags:
+      - Driver Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverStatusRequest'
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverProfile'
+        '400':
+          description: Giá trị trạng thái không hợp lệ, hoặc hồ sơ chưa được duyệt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Tài khoản không phải vai trò DRIVER
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+  /drivers:
+    get:
+      summary: Operations Staff xem danh sách tài xế
+      description: Operations Staff xem danh sách tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DriverProfile'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền quản lý tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+  /drivers/{driverId}/approval:
+    put:
+      summary: Duyệt hoặc từ chối hồ sơ tài xế
+      description: Duyệt hoặc từ chối hồ sơ tài xế. Thuộc module Driver Management.
+      tags:
+      - Driver Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverApprovalRequest'
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverProfile'
+        '400':
+          description: Dữ liệu quyết định không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền duyệt hồ sơ tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - name: driverId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    VehicleType:
+      type: string
+      enum: [BIKE, CAR]
+    ApprovalStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
+      description: Trạng thái duyệt hồ sơ tài xế. Xem States.md mục 3a.
+    AvailabilityStatus:
+      type: string
+      enum: [OFFLINE, AVAILABLE]
+      description: Trạng thái sẵn sàng nhận chuyến. Chỉ dùng khi approvalStatus = APPROVED.
+        Xem States.md mục 3b.
+    VehicleInfo:
+      type: object
+      required: [vehicleType, vehiclePlate]
+      properties:
+        vehicleType:
+          $ref: '#/components/schemas/VehicleType'
+        vehiclePlate:
+          type: string
+          example: "59A-123.45"
+    DriverProfileRequest:
+      type: object
+      required: [vehicleType, vehiclePlate, documents]
+      properties:
+        vehicleType:
+          $ref: '#/components/schemas/VehicleType'
+        vehiclePlate:
+          type: string
+        documents:
+          type: array
+          description: Danh sách giấy tờ bắt buộc (driverLicense, vehicleRegistration).
+          items:
+            type: string
+            format: uri
+    DriverApprovalRequest:
+      type: object
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [APPROVED, REJECTED]
+        reason:
+          type: string
+          description: Bắt buộc khi decision = REJECTED.
+    DriverStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/AvailabilityStatus'
+    DriverProfile:
+      type: object
+      properties:
+        driverId:
+          type: string
+        fullName:
+          type: string
+        phone:
+          type: string
+        vehicle:
+          $ref: '#/components/schemas/VehicleInfo'
+        approvalStatus:
+          $ref: '#/components/schemas/ApprovalStatus'
+        rejectionReason:
+          type: string
+        availabilityStatus:
+          $ref: '#/components/schemas/AvailabilityStatus'
+        averageRating:
+          type: number
+          format: float
+          description: Điểm đánh giá trung bình, cập nhật bởi module Rating.
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string

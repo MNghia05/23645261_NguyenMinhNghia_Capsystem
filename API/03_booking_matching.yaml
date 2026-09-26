@@ -1,0 +1,308 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Booking & Matching
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Booking & Matching
+paths:
+  /bookings:
+    post:
+      summary: Tạo yêu cầu đặt xe
+      description: Tạo yêu cầu đặt xe. Thuộc module Booking & Matching.
+      tags:
+      - Booking & Matching
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '200':
+          description: Booking được tạo ở trạng thái PENDING
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: >-
+            Dữ liệu không hợp lệ (thiếu điểm đón/đến, thiếu loại xe, tọa độ
+            ngoài phạm vi), hoặc khách hàng đang có booking chưa hoàn thành
+            (PENDING/ACCEPTED).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+    get:
+      summary: Tra cứu danh sách chuyến đặt
+      description: Tra cứu danh sách chuyến đặt của khách hàng đang đăng nhập. Thuộc module
+        Booking & Matching.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+  /bookings/{bookingId}:
+    get:
+      summary: Xem chi tiết booking
+      description: Xem chi tiết booking. Thuộc module Booking & Matching.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Booking không thuộc về người dùng này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+    put:
+      summary: Cập nhật hoặc hủy booking
+      description: >-
+        Cập nhật điểm đến (chỉ khi status = PENDING) hoặc hủy booking. Thuộc
+        module Booking & Matching.
+      tags:
+      - Booking & Matching
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBookingRequest'
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Booking không thuộc về người dùng này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+  /bookings/{bookingId}/matching:
+    post:
+      summary: Thực hiện ghép tài xế tự động
+      description: |-
+        Thực hiện ghép tài xế tự động. Thuộc module Booking & Matching.
+        Lưu ý: "không tìm được tài xế phù hợp" là một KẾT QUẢ NGHIỆP VỤ hợp lệ
+        (booking chuyển sang trạng thái NO_DRIVER_FOUND), không phải lỗi hệ thống,
+        nên vẫn trả 200 kèm trạng thái booking tương ứng - không dùng 404 cho
+        trường hợp này (404 chỉ dành cho bookingId không tồn tại). Xem States.md mục 1.
+      tags:
+      - Booking & Matching
+      responses:
+        '200':
+          description: >-
+            Thành công. Gồm cả hai trường hợp: (1) ghép được tài xế - booking
+            chuyển trạng thái ACCEPTED và trả kèm driverId; (2) không tìm
+            được tài xế phù hợp - booking chuyển trạng thái NO_DRIVER_FOUND.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatchingResult'
+        '400':
+          description: >-
+            Booking không còn ở trạng thái PENDING nên không thể thực hiện
+            ghép tài xế.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền thực hiện ghép tài xế
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy booking (bookingId không tồn tại)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    VehicleType:
+      type: string
+      enum: [BIKE, CAR]
+    BookingStatus:
+      type: string
+      enum: [PENDING, ACCEPTED, NO_DRIVER_FOUND, CANCELLED]
+      description: Xem State Machine đầy đủ ở States.md mục 1.
+    GeoPoint:
+      type: object
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+    CreateBookingRequest:
+      type: object
+      required: [pickup, destination, vehicleType]
+      properties:
+        pickup:
+          $ref: '#/components/schemas/GeoPoint'
+        destination:
+          $ref: '#/components/schemas/GeoPoint'
+        vehicleType:
+          $ref: '#/components/schemas/VehicleType'
+    UpdateBookingRequest:
+      type: object
+      properties:
+        destination:
+          $ref: '#/components/schemas/GeoPoint'
+        status:
+          type: string
+          enum: [CANCELLED]
+          description: Chỉ dùng để khách hàng hủy booking.
+    Booking:
+      type: object
+      properties:
+        bookingId:
+          type: string
+        customerId:
+          type: string
+        pickup:
+          $ref: '#/components/schemas/GeoPoint'
+        destination:
+          $ref: '#/components/schemas/GeoPoint'
+        vehicleType:
+          $ref: '#/components/schemas/VehicleType'
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        driverId:
+          type: string
+          nullable: true
+          description: Chỉ có giá trị khi status = ACCEPTED.
+        tripId:
+          type: string
+          nullable: true
+          description: ID của Trip được tạo khi ghép tài xế thành công.
+        createdAt:
+          type: string
+          format: date-time
+    MatchingResult:
+      type: object
+      properties:
+        bookingId:
+          type: string
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        driverId:
+          type: string
+          nullable: true
+        tripId:
+          type: string
+          nullable: true
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string

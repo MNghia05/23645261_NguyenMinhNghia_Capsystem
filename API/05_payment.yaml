@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Payment
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Payment
+paths:
+  /payments:
+    post:
+      summary: Thanh toán chuyến đi
+      description: |-
+        Thanh toán chuyến đi. Thuộc module Payment.
+        Chỉ nhận CASH hoặc ELECTRONIC (không hỗ trợ CRYPTO hay phương thức khác
+        - TC-UC06-NEG-002). Một Trip chỉ được có đúng một giao dịch SUCCESS;
+        giao dịch FAILED không chặn việc tạo giao dịch mới cho cùng Trip đó.
+        Xem States.md mục 4.
+      tags:
+      - Payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '200':
+          description: >-
+            Giao dịch được ghi nhận. Với CASH, status luôn SUCCESS. Với
+            ELECTRONIC, status có thể là SUCCESS hoặc FAILED tùy kết quả từ
+            Nhà cung cấp thanh toán - vẫn trả 200 vì việc tạo giao dịch đã
+            thành công, client đọc field status để biết kết quả thật.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: >-
+            Thiếu thông tin bắt buộc, phương thức không hỗ trợ, chuyến chưa
+            COMPLETED/chưa có totalFare, hoặc chuyến đã có giao dịch SUCCESS.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Chuyến đi không thuộc về người dùng này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy chuyến đi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+    get:
+      summary: Tra cứu giao dịch thanh toán
+      description: >-
+        Tra cứu giao dịch thanh toán. Thuộc module Payment. Khách hàng chỉ
+        thấy giao dịch của mình; Nhân viên vận hành thấy toàn bộ.
+      tags:
+      - Payment
+      responses:
+        '200':
+          description: Thành công (không bao giờ trả số thẻ/tài khoản đầy đủ - TC-UC06-SPC-003)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    PaymentMethod:
+      type: string
+      enum: [CASH, ELECTRONIC]
+    PaymentStatus:
+      type: string
+      enum: [PENDING, SUCCESS, FAILED]
+      description: CASH luôn vào thẳng SUCCESS. ELECTRONIC đi qua PENDING trước khi có
+        kết quả cuối. Xem States.md mục 4.
+    CreatePaymentRequest:
+      type: object
+      required: [tripId, paymentMethod]
+      properties:
+        tripId:
+          type: string
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+    Payment:
+      type: object
+      properties:
+        paymentId:
+          type: string
+        tripId:
+          type: string
+        customerId:
+          type: string
+        amount:
+          type: number
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        createdAt:
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string

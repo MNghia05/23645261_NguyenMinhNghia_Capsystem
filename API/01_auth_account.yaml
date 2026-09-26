@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Authentication & Account
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Authentication & Account
+paths:
+  /auth/register:
+    post:
+      summary: Đăng ký tài khoản bằng số điện thoại và OTP
+      description: Đăng ký tài khoản bằng số điện thoại và OTP. Thuộc module Authentication & Account.
+        Endpoint public, không yêu cầu xác thực.
+      tags:
+      - Authentication & Account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Đăng ký thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Dữ liệu không hợp lệ, hoặc OTP sai/hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy tài nguyên
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Số điện thoại đã được đăng ký
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/otp/request:
+    post:
+      summary: Gửi mã OTP đến số điện thoại
+      description: |-
+        Gửi mã OTP đến số điện thoại để dùng cho /auth/register hoặc
+        /auth/login. Thuộc module Authentication & Account. Endpoint public,
+        không yêu cầu xác thực. Trước bản này, /auth/register và /auth/login
+        yêu cầu tham số otp nhưng không có endpoint nào phát sinh ra OTP đó
+        - đây là endpoint bù vào chỗ thiếu đó (TC-UC01-EXC-001).
+      tags:
+      - Authentication & Account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpRequest'
+      responses:
+        '200':
+          description: OTP đã được gửi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OtpResponse'
+        '400':
+          description: Số điện thoại không đúng định dạng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Gửi lại quá nhanh, vượt giới hạn số lần yêu cầu OTP trong khoảng
+            thời gian ngắn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: >-
+            Nhà cung cấp SMS lỗi hoặc timeout (TC-UC01-EXC-001). Không tạo
+            tài khoản, không cấp token; client được phép gọi lại để yêu cầu
+            gửi OTP mới.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/login:
+    post:
+      summary: Đăng nhập bằng số điện thoại và OTP
+      description: Đăng nhập bằng số điện thoại và OTP. Thuộc module Authentication & Account.
+        Endpoint public, không yêu cầu xác thực.
+      tags:
+      - Authentication & Account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Sai thông tin đăng nhập (SĐT hoặc OTP không đúng/hết hạn)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy tài khoản với số điện thoại này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/me:
+    get:
+      summary: Xem thông tin tài khoản hiện tại
+      description: Xem thông tin tài khoản hiện tại. Thuộc module Authentication & Account.
+      tags:
+      - Authentication & Account
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Chưa xác thực hoặc token hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+    put:
+      summary: Cập nhật thông tin tài khoản hiện tại
+      description: Cập nhật thông tin tài khoản hiện tại. Thuộc module Authentication & Account.
+      tags:
+      - Authentication & Account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Dữ liệu không hợp lệ (vd. fullName rỗng)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Role:
+      type: string
+      enum: [CUSTOMER, DRIVER, OPERATIONS_STAFF, MANAGEMENT]
+      description: Vai trò tài khoản. OPERATIONS_STAFF và MANAGEMENT do hệ thống cấp sẵn,
+        không tạo được qua /auth/register.
+    RegisterRequest:
+      type: object
+      required: [phone, fullName, role, otp]
+      properties:
+        phone:
+          type: string
+          example: "0901234567"
+        fullName:
+          type: string
+          minLength: 1
+          example: "Nguyen Van A"
+        role:
+          $ref: '#/components/schemas/Role'
+        otp:
+          type: string
+          example: "123456"
+    LoginRequest:
+      type: object
+      required: [phone, otp]
+      properties:
+        phone:
+          type: string
+          example: "0901234567"
+        otp:
+          type: string
+          example: "123456"
+    OtpPurpose:
+      type: string
+      enum: [REGISTER, LOGIN]
+      description: Dùng để hệ thống áp đúng luồng kiểm tra (REGISTER không yêu cầu SĐT
+        đã tồn tại, LOGIN thì ngược lại).
+    OtpRequest:
+      type: object
+      required: [phone, purpose]
+      properties:
+        phone:
+          type: string
+          example: "0901234567"
+        purpose:
+          $ref: '#/components/schemas/OtpPurpose'
+    OtpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "OTP đã được gửi"
+        expiresInSeconds:
+          type: integer
+          example: 300
+          description: "Thời hạn hiệu lực của OTP. Giá trị cụ thể chưa chốt - README mục\
+            \ 10.12, tạm ví dụ 300s."
+    UpdateUserRequest:
+      type: object
+      required: [fullName]
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        phone:
+          type: string
+        fullName:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT dùng cho các request cần bearerAuth.
+        tokenType:
+          type: string
+          example: Bearer
+        user:
+          $ref: '#/components/schemas/UserProfile'
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: INVALID_INPUT
+        message:
+          type: string

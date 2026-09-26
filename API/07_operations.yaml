@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - Operations & Reports
+  version: 1.0.0
+  description: API Document cho CAB System - Nền Tảng Đặt Xe Trực Tuyến.
+servers:
+- url: http://localhost:8080/api/v1
+tags:
+- name: Operations & Reports
+paths:
+  /operations/incidents:
+    get:
+      summary: Operations Staff xem sự cố
+      description: >-
+        Operations Staff xem danh sách sự cố cần xử lý (SOS, chuyến lỗi,
+        giao dịch cần kiểm tra - phân biệt qua sourceType). Thuộc module
+        Operations & Reports. Xem States.md mục 5.
+      tags:
+      - Operations & Reports
+      responses:
+        '200':
+          description: Thành công (danh sách rỗng nếu không có sự cố nào - TC-UC12-SPC-001)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Incident'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền quản lý sự cố
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+    put:
+      summary: Operations Staff xử lý/cập nhật sự cố
+      description: >-
+        Operations Staff xử lý/cập nhật sự cố. Thuộc module Operations &
+        Reports. Chuyển sang RESOLVED bắt buộc kèm resolution
+        (TC-UC12-EXC-001), thiếu resolution trả 400.
+      tags:
+      - Operations & Reports
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateIncidentRequest'
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '400':
+          description: >-
+            Giá trị trạng thái không hợp lệ, hoặc chuyển RESOLVED nhưng
+            thiếu resolution.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền quản lý sự cố
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Không tìm thấy sự cố
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+  /reports/operations:
+    get:
+      summary: Management xem báo cáo vận hành
+      description: >-
+        Management xem báo cáo vận hành (số chuyến, doanh thu, tỷ lệ hoàn
+        thành/hủy, hiệu quả tài xế theo kỳ). Thuộc module Operations &
+        Reports.
+      tags:
+      - Operations & Reports
+      parameters:
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: Thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationsReport'
+        '400':
+          description: Khoảng thời gian không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền xem báo cáo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    IncidentSourceType:
+      type: string
+      enum: [SOS, TRIP_ERROR, PAYMENT_ISSUE]
+      description: Phân biệt sự cố đến từ đâu (TC-UC12-POS-001 yêu cầu hiển thị "loại
+        yêu cầu").
+    IncidentStatus:
+      type: string
+      enum: [NEW, IN_PROGRESS, RESOLVED]
+      description: Xem States.md mục 5.
+    Incident:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        sourceType:
+          $ref: '#/components/schemas/IncidentSourceType'
+        tripId:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/IncidentStatus'
+        location:
+          type: object
+          nullable: true
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+        note:
+          type: string
+        resolution:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+    UpdateIncidentRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/IncidentStatus'
+        resolution:
+          type: string
+          description: Bắt buộc khi status = RESOLVED.
+    OperationsReport:
+      type: object
+      properties:
+        periodFrom:
+          type: string
+          format: date
+        periodTo:
+          type: string
+          format: date
+        totalTrips:
+          type: integer
+        totalRevenue:
+          type: number
+        completedRate:
+          type: number
+          format: float
+          description: Tỷ lệ hoàn thành, giá trị 0-1.
+        cancelledRate:
+          type: number
+          format: float
+          description: Tỷ lệ hủy, giá trị 0-1.
+        driverPerformance:
+          type: array
+          items:
+            type: object
+            properties:
+              driverId:
+                type: string
+              completedTrips:
+                type: integer
+              averageRating:
+                type: number
+                format: float
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
