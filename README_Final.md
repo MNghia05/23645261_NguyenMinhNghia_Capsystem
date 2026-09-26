@@ -6,9 +6,9 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 
 **CAB System** ra đời như một giải pháp công nghệ toàn diện nhằm tự động hóa hoàn toàn quy trình vận hành. Nhờ thuật toán ghép chuyến thông minh theo bán kính định vị GPS, hệ thống kết nối khách hàng với tài xế gần nhất trong chưa đầy 30 giây, giúp tối ưu hóa quãng đường di chuyển và cắt giảm tối đa chi phí trung gian. Việc minh bạch hóa giá cước cố định (Upfront Pricing), tích hợp đa dạng cổng thanh toán điện tử, tự động hóa trích xuất hoa hồng vào Ví tài xế và cung cấp công cụ theo dõi hành trình thời gian thực không chỉ nâng cao trải nghiệm người dùng mà còn đảm bảo dòng tiền được quản lý chính xác, minh bạch. Đây là nền tảng công nghệ hiện đại, có khả năng mở rộng linh hoạt, giúp doanh nghiệp tối ưu hóa nguồn lực và bứt phá lợi thế cạnh tranh trên thị trường.
     
-### d) Ai là người tham gia và sử dụng hệ thống?
+Ai là người tham gia và sử dụng hệ thống?
 
-#### d.1. Khách hàng (Customer)
+#### 1. Khách hàng (Customer)
 
 - Đăng ký và đăng nhập.
 - Cập nhật thông tin cá nhân.
@@ -21,7 +21,7 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 - Đánh giá tài xế sau chuyến đi.
 - Gửi yêu cầu hỗ trợ hoặc SOS khi cần.
 
-#### d.2. Tài xế (Driver)
+#### 2. Tài xế (Driver)
 
 - Đăng ký tài khoản hoặc được nhân viên tạo tài khoản.
 - Cập nhật thông tin cá nhân và phương tiện.
@@ -32,7 +32,7 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 - Cung cấp vị trí để hệ thống tìm tài xế phù hợp.
 - Sử dụng chức năng hỗ trợ khẩn cấp khi cần.
 
-#### d.3. Nhân viên vận hành (Operation Staff)
+#### 3. Nhân viên vận hành (Operation Staff)
 
 - Quản lý khách hàng.
 - Quản lý tài xế và phương tiện.
@@ -43,7 +43,7 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 - Tra cứu lịch sử giao dịch.
 - Theo dõi hoạt động của hệ thống.
 
-#### d.4. Ban giám đốc (Management)
+#### 4. Ban giám đốc (Management)
 
 - Theo dõi số lượng chuyến.
 - Theo dõi doanh thu.
@@ -51,14 +51,14 @@ Sự phát triển mạnh mẽ của kinh tế số cùng nhu cầu di chuyển 
 - Theo dõi hiệu quả hoạt động của tài xế.
 - Đưa ra định hướng phát triển hệ thống.
 
-#### d.5. Nhà cung cấp thanh toán (Payment Provider)
+#### 5. Nhà cung cấp thanh toán (Payment Provider)
 
 - Xử lý giao dịch thanh toán điện tử.
 - Trả kết quả giao dịch về hệ thống CAB.
 - Hỗ trợ kết quả thanh toán thành công hoặc thất bại.
 - CAB không lưu trực tiếp thông tin nhạy cảm của thẻ hoặc tài khoản thanh toán.
 
-#### d.6. Nhà cung cấp dịch vụ thông báo (Notification Provider)
+#### 6. Nhà cung cấp dịch vụ thông báo (Notification Provider)
 
 - Gửi thông báo khi khách hàng tạo yêu cầu đặt xe.
 - Thông báo khi tài xế nhận chuyến.
