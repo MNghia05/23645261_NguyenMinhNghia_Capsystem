@@ -111,20 +111,31 @@ paths:
   /bookings/{bookingId}/matching:
     post:
       summary: Thực hiện ghép tài xế tự động
-      description: Thực hiện ghép tài xế tự động. Thuộc module Booking & Matching.
+      description: |-
+        Thực hiện ghép tài xế tự động. Thuộc module Booking & Matching.
+        Lưu ý: "không tìm được tài xế phù hợp" là một KẾT QUẢ NGHIỆP VỤ hợp lệ
+        (booking chuyển sang trạng thái NO_DRIVER_FOUND), không phải lỗi hệ thống,
+        nên vẫn trả 200 kèm trạng thái booking tương ứng - không dùng 404 cho
+        trường hợp này (404 chỉ dành cho bookingId không tồn tại).
       tags:
       - Booking & Matching
       responses:
         '200':
-          description: Thành công
+          description: >-
+            Thành công. Gồm cả hai trường hợp: (1) ghép được tài xế - booking
+            chuyển trạng thái ACCEPTED; (2) không tìm được tài xế phù hợp -
+            booking chuyển trạng thái NO_DRIVER_FOUND. Client phân biệt hai
+            trường hợp qua trường status trong response.
         '400':
-          description: Dữ liệu không hợp lệ
+          description: >-
+            Dữ liệu không hợp lệ, hoặc booking không còn ở trạng thái PENDING
+            nên không thể thực hiện ghép tài xế.
         '401':
           description: Chưa xác thực
         '403':
           description: Không có quyền thực hiện
         '404':
-          description: Không tìm thấy tài nguyên
+          description: Không tìm thấy booking (bookingId không tồn tại)
       requestBody:
         required: true
         content:
