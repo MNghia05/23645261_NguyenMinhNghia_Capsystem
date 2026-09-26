@@ -12,6 +12,7 @@ paths:
     post:
       summary: Đăng ký tài khoản bằng số điện thoại và OTP
       description: Đăng ký tài khoản bằng số điện thoại và OTP. Thuộc module Authentication & Account.
+        Endpoint public, không yêu cầu xác thực.
       tags:
       - Authentication & Account
       responses:
@@ -19,10 +20,6 @@ paths:
           description: Thành công
         '400':
           description: Dữ liệu không hợp lệ
-        '401':
-          description: Chưa xác thực
-        '403':
-          description: Không có quyền thực hiện
         '404':
           description: Không tìm thấy tài nguyên
       requestBody:
@@ -32,12 +29,11 @@ paths:
             schema:
               type: object
             example: {}
-      security:
-      - bearerAuth: []
   /auth/login:
     post:
       summary: Đăng nhập bằng số điện thoại và OTP
       description: Đăng nhập bằng số điện thoại và OTP. Thuộc module Authentication & Account.
+        Endpoint public, không yêu cầu xác thực.
       tags:
       - Authentication & Account
       responses:
@@ -46,9 +42,7 @@ paths:
         '400':
           description: Dữ liệu không hợp lệ
         '401':
-          description: Chưa xác thực
-        '403':
-          description: Không có quyền thực hiện
+          description: Sai thông tin đăng nhập (SĐT hoặc OTP không đúng)
         '404':
           description: Không tìm thấy tài nguyên
       requestBody:
@@ -58,8 +52,6 @@ paths:
             schema:
               type: object
             example: {}
-      security:
-      - bearerAuth: []
   /users/me:
     get:
       summary: Xem thông tin tài khoản hiện tại
